@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.yamedie.av_camera.GirlInfoActivity"
+    tools:showIn="@layout/activity_girl_info">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <ImageView
+                android:layout_marginTop="16dp"
+                android:id="@+id/iv_pic"
+                android:adjustViewBounds="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:layout_marginTop="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:gravity="right"
+                android:text="——著作等身什麼的,還真是不那麼容易達成的呢."
+                android:textColor="@color/text_display_87p"
+                android:textSize="14sp" />
+            <TextView
+                android:layout_marginTop="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="出道日期:"
+                android:textColor="@color/colorPrimary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="16dp"
+                android:text="2013年9月"
+                android:textColor="@color/text_display_87p"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="代表作:"
+                android:textColor="@color/colorPrimary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="16dp"
+                android:text="VD-345 DFG-76C TR-89F ED-02P"
+                android:textColor="@color/text_display_87p"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="身高:"
+                android:textColor="@color/colorPrimary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="16dp"
+                android:text="162cm"
+                android:textColor="@color/text_display_87p"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="个人简介:"
+                android:textColor="@color/colorPrimary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="16dp"
+                android:text="\t1992年出生于大阪郊区的家里,高中后开始酒吧演唱生涯.\n2006年11月先于日本抢先于我国台湾发行专辑《触动心弦》。该专辑获得台湾g-music排行榜第4名、台湾yahooMusic排行榜第1名的辉煌佳绩。
+    2006年12月3日参加于台北华山举行的大型活动Simple Life的演出，与台湾人气艺人及丹尼尔波特等同台献艺，为会场带来一个有一个的高潮，其出色的表演得到了当地观众的高度评价。
+    2007年3月13日参加在北京举行的中日Super Live北京演唱会，与w-inds.、後藤真希、平原绫香等一道作为日本代表登台献艺。
+    2007年4月11日推出第3张单曲《花》 。
+    由森山直太郎作曲、诗人御徒町凧填词的《花》第一次登上单周公信排行榜就进入了前20名的行列。在单日排行榜上的最佳排名达到第13位(截止到4/24)。目前仍在保持畅销的态势。并胸有成竹地推出了歌迷期待已久的第1张专辑。
+    2007年秋季又推出了作为TV动画《夏目友人账》主题曲的单曲《绊/夏夕空》，再次展现他摄人心魄的岛歌唱法，将悠远传说与一份淡然的孤独化为绵绵旋律。
+    2008年，《绊/夏夕空》为日本动漫《夏目友人帐》第一季ED
+    2009年3月11日，TV动画《源氏物语千年纪》的ED单曲《恋》发行，延续了《夏夕空》惆怅的曲调和风格。
+    2008年秋，在中国台湾电影《海角七号》中他分饰两角，出演了剧中痴情的男老师，同时在随后剧情中以中孝介身份登场，表演了一段演唱，受到好评。
+    2009年7月，参与中国香港东亚运动会主题曲开头段演唱。
+    2010年1月，参加湖南卫视《金芒果粉丝节》演唱《各自远扬》和《花》。"
+                android:textColor="@color/text_display_87p"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

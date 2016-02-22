@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--此xml用于制作遮罩,其中颜色的透明度即为遮罩的透明度,有颜色的shape的形状即为遮罩的形状-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#000" />
+    <corners android:radius="2dp" />
+</shape>

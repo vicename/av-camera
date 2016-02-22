@@ -1,0 +1,3 @@
+include ':app', ':', ':http'
+include ':cameraLibrary'
+include ':cameraLibrary'

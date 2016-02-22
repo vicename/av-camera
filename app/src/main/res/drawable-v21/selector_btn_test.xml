@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/flat_button_pressed_darker">
+    <!--利用xml文件制作成遮罩,其中id必须为:android:id="@android:id/mask"-->
+    <item
+        android:id="@android:id/mask"
+        android:drawable="@drawable/mask_btn_2dp_corners"/>
+</ripple>

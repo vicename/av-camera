@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#E91E63</color>
+    <color name="colorPrimaryDark">#E91E63</color>
+    <color name="colorAccent">#DF3FFA</color>
+
+    <color name="text_white_87">#ddffffff</color>
+    <color name="text_white_57">#88ffffff</color>
+    <color name="colorTranslation_full">#00ffffff</color>
+    <color name="colorTranslation_little">#33ffffff</color>
+
+
+    <!--背景色-->
+    <color name="background_normal">#f8f8f8</color>
+
+    <!--文字颜色-->
+    <color name="text_display_87p">#DDffffff</color>
+    <color name="text_display_57p">#8Affffff</color>
+    <color name="text_main">#4d4d4d</color>
+    <color name="text_light">#989898</color>
+
+    <!-- general text colors -->
+    <color name="text">#212121</color>
+    <color name="secondary">#727272</color>
+    <color name="hint">#B8B8B8</color>
+    <color name="dividers">#DADADA</color>
+
+
+
+    <color name="lock_dot">#4cffffff</color>
+    <color name="main">#129D91</color>
+    <color name="main2">#f8f8f8</color>
+    <color name="white">#ffffff</color>
+    <color name="white2">#e0ffffff</color>
+    <color name="white_lock">#FFF7F9FD</color>
+
+
+    <color name="wifi_status">#2a3d85</color>
+    <color name="un_selected">#92a4ec</color>
+    <color name="list_bg">#ebebeb</color>
+    <color name="ssid_color">#343434</color>
+    <color name="ssid_tip_color">#cecece</color>
+
+
+    <!--popupwindow-->
+    <color name="divider">#e4e4e4</color>
+    <color name="divider2">#41e4e4e4</color>
+    <color name="word_color_connect">#555555</color>
+    <color name="black_overlay">#555555</color>
+
+    <!--密码输入框-->
+    <color name="transparent1">#00000000</color>
+    <color name="transparent_wifi_vp">#32000000</color>
+    <color name="transparent2">#1e000000</color>
+    <color name="one_line">#d5d5d5</color>
+    <color name="dialog_use_color">#129D91</color>
+    <color name="dialog_use_color_enabled">#82129D91</color>
+    <color name="text_persion_light_black">#a3a3a3</color>
+    <color name="pwd_dialog_title">#838383</color>
+    <color name="pwd_dialog_gray">#AEAEAE</color>
+
+
+    <color name="setting_color_1">#838383</color>
+    <color name="setting_color_2">#4d4d4d</color>
+    <color name="setting_color_tips">#989898</color>
+    <color name="welcome_color">#aaaea5</color>
+
+    <!--按钮相关颜色-->
+    <color name="float_button_main_normal" >#129D91</color>
+    <color name="float_button_main_pressed">#0f7b71</color>
+    <color name="button_ripple_lighter">#66ffffff</color>
+    <color name="button_ripple_darker">#4d343434</color>
+    <color name="flat_button_pressed_darker">#33343434</color>
+    <color name="flat_button_pressed_lighter">#33ffffff</color>
+    <color name="button_normal">#26A69A</color>
+
+    <!--锁屏-->
+    <color name="lock_circle_unlinked">#dd009688</color>
+    <color name="lock_circle_linked">#009688</color>
+    <color name="lock_font">#ffffff</color>
+    <color name="lock_circle_unselect">#8a009688</color>
+    <color name="lock_vertical_line">#26FFFFFF</color>
+    <color name="lock_foot">#26FFFFFF</color>
+
+    <!--card-->
+    <color name="viewpager_grey">#cccccc</color>
+    <color name="guide_btn_unselece">#14009688</color>
+    <color name="guide_bg">#FFF8F8F8</color>
+
+</resources>

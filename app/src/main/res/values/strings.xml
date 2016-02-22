@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">AV照妖镜</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_my_camera">MyCameraActivity</string>
+    <string name="title_activity_camera_aty">CameraAty</string>
+    <string name="title_activity_show_images">ShowImagesActivity</string>
+    <string name="title_activity_girl_info">GirlInfoActivity</string>
+    <string name="similarity_post">%相似度!</string>
+</resources>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="D:\Appo\Code\SDK_AS\extras\android\m2repository\com\android\support\support-annotations\22.2.1\support-annotations-22.2.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="61a0ff5c29295ec56d7e0bd3d25d95dbf71b4b2b">
+        <dex dex="D:\WWD\AV-Camera\app\build\intermediates\pre-dexed\debug\support-annotations-22.2.1-91489fccf173a61f5e3869ae6d3f21430e78b06e.jar" />
+    </item>
+    <item
+        jar="D:\WWD\AV-Camera\app\libs\com.umeng.fb.5.3.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="ae496d887109ef6f07ac593478266068ae1bcd29">
+        <dex dex="D:\WWD\AV-Camera\app\build\intermediates\pre-dexed\debug\com.umeng.fb.5.3.0-b95b03ae27440daa6b5de94a445180bb4c583355.jar" />
+    </item>
+    <item
+        jar="D:\WWD\AV-Camera\app\libs\faceppofflinesdk.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="061598c78276e7ade404f14e909b762f7037fba8">
+        <dex dex="D:\WWD\AV-Camera\app\build\intermediates\pre-dexed\debug\faceppofflinesdk-08bbccc127211d20438a8ec4d77d9a561a1f7305.jar" />
+    </item>
+    <item
+        jar="D:\WWD\AV-Camera\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.2.1\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="f8efd0096475e0daf054267b61544e10dc776503">
+        <dex dex="D:\WWD\AV-Camera\app\build\intermediates\pre-dexed\debug\classes-086a43bd080ea5f589a08fb730f5c29218e0bf92.jar" />
+    </item>
+    <item
+        jar="D:\WWD\AV-Camera\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\22.2.1\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="4486e953d1f35f8ccab098b1dd67146366d5f731">
+        <dex dex="D:\WWD\AV-Camera\app\build\intermediates\pre-dexed\debug\classes-49376b815ce7f87b021a92087ca50ea1e79491a8.jar" />
+    </item>
+    <item
+        jar="D:\WWD\AV-Camera\app\build\intermediates\exploded-aar\AV-Camera\cameraLibrary\unspecified\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="22ae7a26e3a575becbe3dc061f57edef6d686e79">
+        <dex dex="D:\WWD\AV-Camera\app\build\intermediates\pre-dexed\debug\classes-598dfa2f2cb2e9e6e5e7cfa8c0b29219d9e9d431.jar" />
+    </item>
+    <item
+        jar="D:\WWD\AV-Camera\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.2.1\jars\libs\internal_impl-22.2.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="c471eaaba13ff64f6e0383d1c30a9cdc9a97efeb">
+        <dex dex="D:\WWD\AV-Camera\app\build\intermediates\pre-dexed\debug\internal_impl-22.2.1-c3633115acf1002685c2159c2278cc631c4cde90.jar" />
+    </item>
+    <item
+        jar="D:\WWD\AV-Camera\app\build\intermediates\exploded-aar\com.android.support\design\22.2.1\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="1821601ddbec5ff125653097812823388700af74">
+        <dex dex="D:\WWD\AV-Camera\app\build\intermediates\pre-dexed\debug\classes-610e7f01e6f7c2dde98c01c3110ab1d59033a4a9.jar" />
+    </item>
+    <item
+        jar="D:\WWD\AV-Camera\app\libs\picasso-2.5.2.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="7446d06ec8d4f7ffcc53f1da37c95f200dcb9387">
+        <dex dex="D:\WWD\AV-Camera\app\build\intermediates\pre-dexed\debug\picasso-2.5.2-3c2553f6cfbaa2ce0225e0490d154143ec72ba1b.jar" />
+    </item>
+    <item
+        jar="D:\WWD\AV-Camera\app\libs\faceppsdk.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="afa55625b1c59349ea508c296e3aeaec913cda24">
+        <dex dex="D:\WWD\AV-Camera\app\build\intermediates\pre-dexed\debug\faceppsdk-26dea376b39703ba95a1e3a0425ad735e093aeae.jar" />
+    </item>
+    <item
+        jar="D:\WWD\AV-Camera\app\build\intermediates\exploded-aar\AV-Camera\http\unspecified\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="969e93dc8ece54929bc31678ffe8133dd140510f">
+        <dex dex="D:\WWD\AV-Camera\app\build\intermediates\pre-dexed\debug\classes-5e311253758a598db90c8e3b7408f8a70dacb64d.jar" />
+    </item>
+    <item
+        jar="C:\Users\green\.gradle\caches\modules-2\files-2.1\com.umeng.analytics\analytics\5.6.4\76fed6d2233b958f0c1d589aa366785e0ab5c8f1\analytics-5.6.4.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="76fed6d2233b958f0c1d589aa366785e0ab5c8f1">
+        <dex dex="D:\WWD\AV-Camera\app\build\intermediates\pre-dexed\debug\analytics-5.6.4-41244175db7c40ee78d0620cb2646861d01ad96f.jar" />
+    </item>
+
+</items>

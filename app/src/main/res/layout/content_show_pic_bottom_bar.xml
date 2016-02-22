@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:background="#56333333">
+
+    <Button
+        android:id="@+id/btn_take_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@drawable/selector_btn_no_limit_color_accent"
+        android:textColor="@color/text_white_87"
+        android:layout_alignParentBottom="true"
+        android:text="重新拍" />
+
+    <Button
+        android:id="@+id/btn_choose_pic"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/selector_btn_no_limit_color_accent"
+        android:textColor="@color/text_white_87"
+        android:layout_alignParentRight="true"
+        android:text="选择图片" />
+
+    <Button
+        android:id="@+id/btn_check_face"
+        android:layout_width="wrap_content"
+        android:background="@drawable/selector_btn_no_limit_color_accent"
+        android:textColor="@color/text_white_87"
+        android:textStyle="bold"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="找老师" />
+</RelativeLayout>
