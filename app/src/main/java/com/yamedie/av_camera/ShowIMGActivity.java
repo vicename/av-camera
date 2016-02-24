@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -35,9 +37,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.yamedie.common.CommonDefine;
 import com.yamedie.utils.CommonUtils;
@@ -56,14 +56,14 @@ public class ShowIMGActivity extends BassActivity {
     private Button mBtnChoosePic;
     private Button mBtnCheckFace;
     private ImageView mIvShowPhoto;
-    private ImageView mIvShowPhoto2;
     private List<Uri> list;
     private Bitmap mSelectedBitmap;//图片对象
     private FaceDetecter detecter;
     private Handler detectHanler;
     private HandlerThread detectThread;
     private HttpRequests request;
-    private String mImagePath;
+    private String mPathOfPhoto;
+    private String mPathOfSelectedPic;
     private boolean mIsReSelectedPhoto;
     private TextView tvName;
     private TextView tvSimilar;
@@ -87,15 +87,17 @@ public class ShowIMGActivity extends BassActivity {
         request = new HttpRequests(CommonDefine.API_KEY_VALUE, CommonDefine.API_SECRET_VALUE);
         Intent intent = getIntent();
         if (intent != null) {
-            mImagePath = getIntent().getStringExtra(CommonDefine.TAG_IMAGE_PATH);//获取传过来的图片
-            if (mImagePath != null) {
-                mSelectedBitmap = BitmapFactory.decodeFile(mImagePath);//获取图片为bitmap
+            mPathOfPhoto = getIntent().getStringExtra(CommonDefine.TAG_IMAGE_PATH);//获取传过来的图片
+            if (mPathOfPhoto != null) {
+                mSelectedBitmap = BitmapFactory.decodeFile(mPathOfPhoto);//获取图片为bitmap
             }
         }
-        Logger.i("---", mImagePath);
+        Logger.i("---", mPathOfPhoto);
     }
 
     private void initView() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new ClickCheckFaceServer());
         mIvShowPhoto = (ImageView) findViewById(R.id.iv_show_photo);
         mIvShowPhoto.setImageBitmap(mSelectedBitmap);
         tvName = (TextView) findViewById(R.id.tv_name);
@@ -104,7 +106,6 @@ public class ShowIMGActivity extends BassActivity {
         mBtnTakePhoto.setOnClickListener(new ClickTakePhoto());
         mBtnChoosePic = (Button) findViewById(R.id.btn_choose_pic);
         mBtnChoosePic.setOnClickListener(new ClickChoosePic());
-        mIvShowPhoto2 = (ImageView) findViewById(R.id.iv_show_photo2);
         mBtnAllPics = (Button) findViewById(R.id.btn_all_pics);
         mBtnAllPics.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,27 +131,38 @@ public class ShowIMGActivity extends BassActivity {
         }
         //外界的程序访问ContentProvider所提供数据 可以通过ContentResolver接口
         ContentResolver resolver = getContentResolver();
-        //此处的用于判断接收的Activity是不是你想要的那个
-        if (requestCode == TAG_CHOOSE_IMG) {
+        //根据tag判断回调类型
+        if (requestCode == TAG_CHOOSE_IMG) {//选取图片回调
             try {
                 //获得图片的uri
                 Uri originalUri = data.getData();
-                mSelectedBitmap = MediaStore.Images.Media.getBitmap(resolver, originalUri);
-                mSelectedBitmap = ImageUtil.compressBitmap(mSelectedBitmap, 720);
-                mIvShowPhoto.setImageBitmap(mSelectedBitmap);
-                //显得到bitmap图片这里开始的第二部分，获取图片的路径：
-                String[] proj = {MediaStore.Images.Media.DATA};
-                //好像是android多媒体数据库的封装接口，具体的看Android文档
-                Cursor cursor = managedQuery(originalUri, proj, null, null, null);
-                //按我个人理解 这个是获得用户选择的图片的索引值
-                int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                //将光标移至开头 ，这个很重要，不小心很容易引起越界
-                cursor.moveToFirst();
-                //最后根据索引值获取图片路径
-                String path = cursor.getString(column_index);
-                tvName.setVisibility(View.INVISIBLE);
-                tvSimilar.setVisibility(View.INVISIBLE);
-                mIvShowPhoto2.setVisibility(View.INVISIBLE);
+                //有的时候uri获取过来是file路径,所以要进行区分,否则会空指针
+                if (originalUri.toString().startsWith("file:///")) {
+                    if (ImageUtil.isPicture(originalUri.toString())) {
+                        mPathOfPhoto = originalUri.getPath();
+                        mSelectedBitmap = BitmapFactory.decodeFile(mPathOfPhoto);
+                        mIvShowPhoto.setImageBitmap(mSelectedBitmap);
+                    } else {
+                        toastGo("您选取的不是图片!");
+                    }
+                } else {
+                    mSelectedBitmap = MediaStore.Images.Media.getBitmap(resolver, originalUri);
+                    mSelectedBitmap = ImageUtil.compressBitmap(mSelectedBitmap, 720);
+                    mIvShowPhoto.setImageBitmap(mSelectedBitmap);
+                    //显得到bitmap图片这里开始的第二部分，获取图片的路径：
+                    String[] proj = {MediaStore.Images.Media.DATA};
+                    //好像是android多媒体数据库的封装接口，具体的看Android文档
+                    Cursor cursor = managedQuery(originalUri, proj, null, null, null);
+                    //按我个人理解 这个是获得用户选择的图片的索引值
+                    int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                    //将光标移至开头 ，这个很重要，不小心很容易引起越界
+                    cursor.moveToFirst();
+                    //最后根据索引值获取图片路径
+                    mPathOfPhoto = cursor.getString(column_index);
+                    Logger.i("-----", "选取图片path:" + mPathOfSelectedPic);
+                    tvName.setVisibility(View.INVISIBLE);
+                    tvSimilar.setVisibility(View.INVISIBLE);
+                }
 
             } catch (IOException e) {
                 Logger.i("---err", e.toString());
@@ -166,7 +178,7 @@ public class ShowIMGActivity extends BassActivity {
             }
             String imagePath = bundle.getString("aaaa");
             if (imagePath != null) {
-                mImagePath = imagePath;
+                mPathOfPhoto = imagePath;
                 File file = new File(imagePath);
                 Uri uri = Uri.fromFile(file);
                 Bitmap bm = BitmapFactory.decodeFile(imagePath);
@@ -175,7 +187,6 @@ public class ShowIMGActivity extends BassActivity {
                 mIvShowPhoto.setImageBitmap(bm);
                 tvName.setVisibility(View.INVISIBLE);
                 tvSimilar.setVisibility(View.INVISIBLE);
-                mIvShowPhoto2.setVisibility(View.INVISIBLE);
             }
         }
     }
@@ -296,7 +307,7 @@ public class ShowIMGActivity extends BassActivity {
                 HttpRequests requests = new HttpRequests(CommonDefine.API_KEY_VALUE, CommonDefine.API_SECRET_VALUE, true, true);
                 PostParameters parameters = new PostParameters();
                 requests.getWebSite();
-                mSelectedBitmap=ImageUtil.compressBitmap(mSelectedBitmap, 400);
+                mSelectedBitmap = ImageUtil.compressBitmap(mSelectedBitmap, 400);
                 parameters.setImg(FileUtil.Bitmap2Bytes(mSelectedBitmap));
                 JSONObject jObj = null;
                 try {
@@ -413,7 +424,7 @@ public class ShowIMGActivity extends BassActivity {
                     String name = personObj.optString("person_name", "");
 //                    setAVPic(imgUrl);
 //                    setInfo(name, similarity, imgUrl);
-                    goShowTeacher(imgUrl,name,similarity);
+                    goShowTeacher(imgUrl, name, similarity);
                     Logger.i("---", name, imgUrl);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -448,8 +459,6 @@ public class ShowIMGActivity extends BassActivity {
                         @Override
                         public void run() {
                             mIvShowPhoto.setImageBitmap(bitmap);
-                            mIvShowPhoto2.setVisibility(View.VISIBLE);
-                            mIvShowPhoto2.setImageBitmap(mSelectedBitmap);
                         }
                     });
                 }
@@ -460,7 +469,7 @@ public class ShowIMGActivity extends BassActivity {
     private void goShowTeacher(String imgUrl, String name, double similarity) {
         Intent intent = new Intent();
         intent.setClass(ShowIMGActivity.this, ShowTeacherActivity.class);
-        intent.putExtra(CommonDefine.TAG_IMAGE_PATH, mImagePath);
+        intent.putExtra(CommonDefine.TAG_IMAGE_PATH, mPathOfPhoto);
         intent.putExtra(CommonDefine.TAG_IMAGE_URL, imgUrl);
         intent.putExtra(CommonDefine.TAG_TEACHER_NAME, name);
         intent.putExtra(CommonDefine.TAG_SIMILAR, String.valueOf(similarity));

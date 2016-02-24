@@ -294,7 +294,17 @@ public class ImageUtil {
     }
 
     /**
-     * 方法图片
+     * 根据路径判断是否为图片
+     * @param path 路径
+     * @return 是否是图片
+     */
+    public static boolean isPicture(String path) {
+        path = path.toLowerCase();
+        return path.endsWith(".jpg") || path.endsWith(".png");
+    }
+
+    /**
+     * 放大图片
      *
      * @param bitmap
      * @param big
@@ -303,8 +313,7 @@ public class ImageUtil {
     public static Bitmap big(Bitmap bitmap, float big) {
         Matrix matrix = new Matrix();
         matrix.postScale(big, big); // 长和宽放大缩小的比例
-        Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-        return resizeBmp;
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
 

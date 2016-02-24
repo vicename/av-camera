@@ -3,6 +3,7 @@ package com.linj.camera.view;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,6 +17,7 @@ import com.linj.cameralibrary.R;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
@@ -29,8 +31,10 @@ import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
 import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -50,6 +54,7 @@ import android.widget.Toast;
  * @date 2014-12-31 上午9:38:52
  */
 public class CameraContainer extends RelativeLayout implements CameraOperation {
+    private Context mContext;
 
     public final static String TAG = "CameraContainer";
 
@@ -108,6 +113,7 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
     public CameraContainer(Context context, AttributeSet attrs) {
         super(context, attrs);
         initView(context);
+        mContext = context;
         mHandler = new Handler();
         mTimeFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
         setOnTouchListener(new TouchListener());
@@ -346,7 +352,6 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
             if (mDataHandler == null) mDataHandler = new DataHandler();
             mDataHandler.setMaxSize(200);
             Bitmap bm = mDataHandler.save(data);
-            Log.i("----", "bm2 height:" + bm.getHeight());
             String imagePath = null;
             if (bm != null) {
                 imagePath = mDataHandler.getImagePath();
@@ -520,7 +525,7 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
                 try {
                     //存图片大图
                     FileOutputStream fos = new FileOutputStream(file);
-                    ByteArrayOutputStream bos = compress(bm,1);//DC____跳过压缩方法
+                    ByteArrayOutputStream bos = compress(bm, 1);//DC____跳过压缩方法
                     fos.write(bos.toByteArray());
                     fos.flush();
                     fos.close();
@@ -531,6 +536,10 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
 //                    thumbnail.compress(Bitmap.CompressFormat.JPEG, 50, bufferos);
 //                    bufferos.flush();
 //                    bufferos.close();
+                    //把文件插入到系统图库
+                    MediaStore.Images.Media.insertImage(mContext.getContentResolver(), file.getAbsolutePath(), imgName, null);
+                    //通知系统图库更新
+                    mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + imagePath)));
                     return bm;
                 } catch (Exception e) {
                     Log.e(TAG, e.toString());
@@ -622,7 +631,7 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
             return baos;
         }
 
-        public ByteArrayOutputStream compress(Bitmap bitmap,int i) {
+        public ByteArrayOutputStream compress(Bitmap bitmap, int i) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             return baos;

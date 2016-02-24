@@ -75,8 +75,8 @@ public class FileOperateUtil {
 			default:
 				break;
 		}
-//		return pathBuilder.toString();
-        return pathBuilder.toString();
+		return pathDC.toString();
+//        return pathBuilder.toString();
 	}
 
 	/**
