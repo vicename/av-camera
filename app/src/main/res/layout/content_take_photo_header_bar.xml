@@ -4,7 +4,7 @@
     android:layout_height="@dimen/top_menu_bar_height"
     android:layout_alignParentLeft="true"
     android:layout_alignParentTop="true"
-    android:background="@color/main_menu_bg"
+    android:background="#00000000"
     android:clickable="true"
     android:orientation="horizontal" >
 

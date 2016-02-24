@@ -7,7 +7,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.View;
@@ -21,10 +24,10 @@ import com.linj.camera.view.CameraContainer;
 import com.linj.camera.view.CameraView;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import com.yamedie.common.CommonDefine;
+import com.yamedie.utils.FileUtil;
 import com.yamedie.utils.ImageUtil;
 import com.yamedie.utils.Logger;
 
@@ -45,9 +48,7 @@ public class TakePhotoActivity extends BassActivity implements View.OnClickListe
     private View mHeaderBar;
     private boolean isRecording = false;
     private String mImagePath;
-    private Bitmap mBitmap;
     private final int TAG_CHOOSE_IMG = 0;
-    private String mPathOfPhoto;//图片路径
 
 
     @Override
@@ -99,32 +100,42 @@ public class TakePhotoActivity extends BassActivity implements View.OnClickListe
         if (requestCode == TAG_CHOOSE_IMG) {//选取图片回调
             //获得图片的uri
             Uri originalUri = data.getData();
+            String path = null;
             //有的时候uri获取过来是file路径,所以要进行区分,否则会空指针
+            Logger.i("uri String :" + originalUri.toString());
             if (originalUri.toString().startsWith("file:///")) {
                 if (ImageUtil.isPicture(originalUri.toString())) {
-                    mPathOfPhoto = originalUri.getPath();
+                    path = originalUri.getPath();
                 } else {
                     toastGo("您选取的不是图片!");
                 }
             } else {
-                //显得到bitmap图片这里开始的第二部分，获取图片的路径：
-                String[] proj = {MediaStore.Images.Media.DATA};
-                //好像是android多媒体数据库的封装接口，具体的看Android文档
-                Cursor cursor = managedQuery(originalUri, proj, null, null, null);
-                //按我个人理解 这个是获得用户选择的图片的索引值
-                int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                //将光标移至开头 ，这个很重要，不小心很容易引起越界
-                cursor.moveToFirst();
-                //最后根据索引值获取图片路径
-                mPathOfPhoto = cursor.getString(column_index);
-                Logger.i("-----", "选取图片path:" + mPathOfPhoto);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    path = FileUtil.getPathFromUri(getApplication(), originalUri);
+                } else {
+                    //显得到bitmap图片这里开始的第二部分，获取图片的路径：
+                    String[] proj = {MediaStore.Images.Media.DATA};
+                    //好像是android多媒体数据库的封装接口，具体的看Android文档
+                    Cursor cursor = getContentResolver().query(originalUri, proj, null, null, null);
+                    //按我个人理解 这个是获得用户选择的图片的索引值
+                    cursor.moveToFirst();
+                    int column_index = cursor.getColumnIndex(proj[0]);
+                    //将光标移至开头 ，这个很重要，不小心很容易引起越界
+                    //最后根据索引值获取图片路径
+                    path = cursor.getString(column_index);
+                    Logger.i(1, "cusor index:" + column_index);
+                    Logger.i(1, "cusor get String:" + cursor.getString(0));
+                    cursor.close();
+                }
+                Logger.i("-----", "选取图片path:" + path);
             }
             //获取到图片路径后即跳转到展示图片页面
-            if (!TextUtils.isEmpty(mPathOfPhoto)) {
+            if (!TextUtils.isEmpty(path)) {
                 Intent intent = new Intent(getApplication(), ShowIMGActivity.class);
-                intent.putExtra(CommonDefine.TAG_IMAGE_PATH, mPathOfPhoto);
+                intent.putExtra(CommonDefine.TAG_IMAGE_PATH, path);
                 startActivity(intent);
-                mPathOfPhoto = null;
+            } else {
+                toastGo("选取图片失败!");
             }
         }
     }
@@ -132,7 +143,7 @@ public class TakePhotoActivity extends BassActivity implements View.OnClickListe
     /**
      * 选择图片
      */
-    private void choosePic(){
+    private void choosePic() {
         Intent getAlbum = new Intent(Intent.ACTION_GET_CONTENT);
         getAlbum.setType(IMAGE_TYPE);
         startActivityForResult(getAlbum, TAG_CHOOSE_IMG);
@@ -167,6 +178,7 @@ public class TakePhotoActivity extends BassActivity implements View.OnClickListe
      */
     private void setFlashMode() {
         mContainer.setFlashMode(CameraView.FlashMode.OFF);
+
         mFlashView.setImageResource(R.drawable.btn_flash_off);
     }
 
@@ -178,7 +190,7 @@ public class TakePhotoActivity extends BassActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-// TODO Auto-generated method stub
+        // TODO Auto-generated method stub
         switch (v.getId()) {
             case R.id.btn_shutter_camera:
                 mCameraShutterButton.setClickable(false);
@@ -265,9 +277,7 @@ public class TakePhotoActivity extends BassActivity implements View.OnClickListe
     @Override
     public void onTakePictureEnd(Bitmap bm) {
         mCameraShutterButton.setClickable(true);
-        mBitmap = bm;
-        Logger.i("---", "bm3 height" + mBitmap.getHeight());
-//        Logger.i("---","mSavePath",path);
+        Bitmap mBitmap = bm;
     }
 
     @Override
@@ -293,7 +303,7 @@ public class TakePhotoActivity extends BassActivity implements View.OnClickListe
             intent.putExtra(CommonDefine.TAG_IMAGE_PATH, mImagePath);
 //            setResult(RESULT_OK, intent);
 //            finish();
-            intent.setClass(TakePhotoActivity.this,ShowIMGActivity.class);
+            intent.setClass(TakePhotoActivity.this, ShowIMGActivity.class);
             startActivity(intent);
 //            finish();
         }

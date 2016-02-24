@@ -1,19 +1,15 @@
-package com.yamedie.utils;
+package com.linj.utils;
 
 import android.util.Log;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.RequestParams;
-
-import com.yamedie.common.CommonDefine;
-
 /**
- * Created by Li Dachang on 16/1/25.
+ * Created by Li Dachang on 16/2/24.
  * ..-..---.-.--..---.-...-..-....-.
  */
 public class Logger {
-    private static final String DEFAULT_FLAG = "ssss---";
-    private static final String DEFAULT_FLAG_2 = "xxxx---";
+    private static boolean IS_DEBUG=true;
+    private static final String DEFAULT_TAG = "ssss---";
+    private static final String DEFAULT_TAG_2 = "xxxx---";
     private static final String DC_TAG_1 = "---";
     private static final String DC_TAG_2 = "-+-+- ";
 
@@ -26,7 +22,7 @@ public class Logger {
     }
 
     public static void i(String flag, String msg) {
-        if (CommonDefine.is_debug) {
+        if (IS_DEBUG) {
             Log.i(flag, msg);
         }
     }
@@ -41,27 +37,19 @@ public class Logger {
 
     public static void i(int flag, Object msg) {
         if (flag == 1) {
-            i(DC_TAG_1, String.valueOf(msg));
+            i(DC_TAG_1,String.valueOf(msg));
         }
     }
 
     public static void i(int tag, String msgKey, Object msgValue) {
         if (tag == 1) {
-            i(DC_TAG_1, DC_TAG_1 + " " + msgKey + " : " + String.valueOf(msgValue) + " --");
+            i(DC_TAG_1, DC_TAG_1+ " " + msgKey + " : " + String.valueOf(msgValue) + " --");
         }
     }
 
-
-    /**
-     * 打印URL的Log
-     *
-     * @param msg       相关信息
-     * @param serverURL 请求地址
-     * @param params    请求队列
-     */
-    public static void url(String msg, String serverURL, RequestParams params) {
-        String url = AsyncHttpClient.getUrlWithQueryString(true, serverURL, params);
-        i("--URL--", msg + "--" + url);//打印
+    public static void e(int tag, Object msg) {
+        if (IS_DEBUG) {
+            Log.e("---", String.valueOf(msg));
+        }
     }
-
 }

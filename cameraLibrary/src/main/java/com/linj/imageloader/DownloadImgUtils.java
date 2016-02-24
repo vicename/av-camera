@@ -7,9 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.logging.Logger;
 
-import com.linj.imageloader.ImageSizeUtil.ImageSize;
+import com.linj.imageloader.ImageUtil.ImageSize;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -94,8 +93,8 @@ public class DownloadImgUtils {
             Bitmap bitmap = BitmapFactory.decodeStream(is, null, opts);
 
             //获取imageView想要显示的宽和高
-            ImageSize imageViewSize = ImageSizeUtil.getImageViewSize(imageView);
-            opts.inSampleSize = ImageSizeUtil.caculateInSampleSize(opts,
+            ImageSize imageViewSize = ImageUtil.getImageViewSize(imageView);
+            opts.inSampleSize = ImageUtil.caculateInSampleSize(opts,
                     imageViewSize.width, imageViewSize.height);
 
             opts.inJustDecodeBounds = false;

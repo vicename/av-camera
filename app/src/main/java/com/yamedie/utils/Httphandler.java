@@ -24,13 +24,11 @@ public class Httphandler {
     /**
      * 上传图片并获取URl地址
      *
-     * @param context         上下文
-     * @param path            文件路径
      * @param params          请求队列
      * @param url             url地址
      * @param responseHandler 回调
      */
-    public static void getImgUrl(final Context context, String path, RequestParams params, String url, JsonHttpResponseHandler responseHandler) {
+    public static void getImgUrl(RequestParams params, String url, JsonHttpResponseHandler responseHandler) {
         try {
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
             trustStore.load(null, null);

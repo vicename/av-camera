@@ -1,42 +1,25 @@
 package com.linj.camera.view;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.logging.Logger;
 
 
-import com.linj.FileOperateUtil;
 import com.linj.camera.view.CameraView.FlashMode;
 import com.linj.cameralibrary.R;
+import com.linj.imageloader.ImageDataHandler;
+import com.linj.utils.Logger;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.PixelFormat;
 import android.graphics.Point;
-import android.graphics.PointF;
-import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
-import android.media.ThumbnailUtils;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.provider.MediaStore;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -44,7 +27,6 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.Toast;
 
 
 /**
@@ -91,7 +73,7 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
     /**
      * 照片字节流处理类
      */
-    private DataHandler mDataHandler;
+    private ImageDataHandler mImageDataHandler;
 
     /**
      * 拍照监听接口，用以在拍照开始和结束后执行相应操作
@@ -119,15 +101,11 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
         setOnTouchListener(new TouchListener());
     }
 
-    /**
-     * 初始化子控件
-     *
-     * @param context
-     */
     private void initView(Context context) {
         inflate(context, R.layout.cameracontainer, this);
         mCameraView = (CameraView) findViewById(R.id.cameraView);
-
+//        mCameraView.setLayoutParams(new LayoutParams(500, 500));
+        mCameraView.setSurfaceView(mCameraView);
         mTempImageView = (TempImageView) findViewById(R.id.tempImageView);
 
         mFocusImageView = (FocusImageView) findViewById(R.id.focusImageView);
@@ -138,6 +116,7 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
 
         mZoomSeekBar = (SeekBar) findViewById(R.id.zoomSeekBar);
         //获取当前照相机支持的最大缩放级别，值小于0表示不支持缩放。当支持缩放时，加入拖动条。
+        Logger.i("---", "---getMaxZoom");
         int maxZoom = mCameraView.getMaxZoom();
         if (maxZoom > 0) {
             mZoomSeekBar.setMax(maxZoom);
@@ -249,7 +228,6 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
      */
     public void setRootPath(String rootPath) {
         this.mSavePath = rootPath;
-
     }
 
 
@@ -261,10 +239,8 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
     }
 
     /**
-     * @param @param listener 拍照监听接口
-     * @return void
-     * @throws
-     * @Description: 拍照方法
+     * 拍照方法
+     * @param listener 拍照监听
      */
     public void takePicture(TakePictureListener listener) {
         this.mListener = listener;
@@ -349,12 +325,12 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             if (mSavePath == null) throw new RuntimeException("mSavePath is null");
-            if (mDataHandler == null) mDataHandler = new DataHandler();
-            mDataHandler.setMaxSize(200);
-            Bitmap bm = mDataHandler.save(data);
+            if (mImageDataHandler == null) mImageDataHandler = new ImageDataHandler(mContext);
+            mImageDataHandler.setMaxSize(200);
+            Bitmap bm = mImageDataHandler.save(data);
             String imagePath = null;
             if (bm != null) {
-                imagePath = mDataHandler.getImagePath();
+                imagePath = mImageDataHandler.getImagePath();
             }
             mTempImageView.setListener(mListener);
             mTempImageView.isVideo(false);
@@ -463,186 +439,6 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
     }
 
     /**
-     * 拍照返回的byte数据处理类
-     *
-     * @author linj
-     */
-    private final class DataHandler {
-        private String imagePath;
-        private File imageFile;
-        private String thumbPath;
-        /**
-         * 大图存放路径
-         */
-        private String mThumbnailFolder;
-        /**
-         * 小图存放路径
-         */
-        private String mImageFolder;
-        /**
-         * 压缩后的图片最大值 单位KB
-         */
-        private int maxSize = 200;
-
-        public DataHandler() {
-            mImageFolder = FileOperateUtil.getFolderPath(getContext(), FileOperateUtil.TYPE_IMAGE, mSavePath);
-            mThumbnailFolder = FileOperateUtil.getFolderPath(getContext(), FileOperateUtil.TYPE_THUMBNAIL, mSavePath);
-            Log.i("---", "folder path:" + mThumbnailFolder);
-            File folder = new File(mImageFolder);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            folder = new File(mThumbnailFolder);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-        }
-
-        /**
-         * 保存图片
-         *
-         * @param data 相机返回的文件流
-         * @return 解析流生成的缩略图
-         */
-        public Bitmap save(byte[] data) {
-            if (data != null) {
-                //解析生成相机返回的图片
-                Bitmap bm = BitmapFactory.decodeByteArray(data, 0, data.length);
-                Log.i("---", "bm1 height" + bm.getHeight());
-                //获取加水印的图片
-                bm = getBitmapWithWaterMark(bm);
-                //生成缩略图
-                Bitmap thumbnail = ThumbnailUtils.extractThumbnail(bm, 213, 213);
-                //产生新的文件名
-                String imgName = FileOperateUtil.createFileNmae(".jpg");
-                imagePath = mImageFolder + File.separator + imgName;
-                Log.i("---", "imagePath:" + imagePath);
-                thumbPath = mThumbnailFolder + File.separator + imgName;
-
-                File file = new File(imagePath);
-                File thumFile = new File(thumbPath);
-                Log.i("---", "thumbPath:" + thumbPath);
-                try {
-                    //存图片大图
-                    FileOutputStream fos = new FileOutputStream(file);
-                    ByteArrayOutputStream bos = compress(bm, 1);//DC____跳过压缩方法
-                    fos.write(bos.toByteArray());
-                    fos.flush();
-                    fos.close();
-                    //存图片小图
-
-//                    FileOutputStream thumb = new FileOutputStream(thumFile);
-//                    BufferedOutputStream bufferos = new BufferedOutputStream(new FileOutputStream(thumFile));
-//                    thumbnail.compress(Bitmap.CompressFormat.JPEG, 50, bufferos);
-//                    bufferos.flush();
-//                    bufferos.close();
-                    //把文件插入到系统图库
-                    MediaStore.Images.Media.insertImage(mContext.getContentResolver(), file.getAbsolutePath(), imgName, null);
-                    //通知系统图库更新
-                    mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + imagePath)));
-                    return bm;
-                } catch (Exception e) {
-                    Log.e(TAG, e.toString());
-                    Toast.makeText(getContext(), "解析相机返回流失败", Toast.LENGTH_SHORT).show();
-                }
-
-            } else {
-                Toast.makeText(getContext(), "拍照失败，请重试", Toast.LENGTH_SHORT).show();
-            }
-            return null;
-        }
-
-        public String getImagePath() {
-            return imagePath;
-        }
-
-        public File getImageFile() {
-            return imageFile;
-        }
-
-        private Bitmap getBitmapWithWaterMark(Bitmap bm) {
-            // TODO Auto-generated method stub
-            if (!(mWaterMarkImageView.getVisibility() == View.VISIBLE)) {
-                return bm;
-            }
-            Drawable mark = mWaterMarkImageView.getDrawable();
-            Bitmap wBitmap = drawableToBitmap(mark);
-            int w = bm.getWidth();
-
-            int h = bm.getHeight();
-
-            int ww = wBitmap.getWidth();
-
-            int wh = wBitmap.getHeight();
-            Bitmap newb = Bitmap.createBitmap(w, h, Config.ARGB_8888);
-            Canvas canvas = new Canvas(newb);
-            //draw src into
-
-            canvas.drawBitmap(bm, 0, 0, null);//在 0，0坐标开始画入src
-            canvas.drawBitmap(wBitmap, w - ww + 5, h - wh + 5, null);//在src的右下角画入水印
-            //save all clip
-
-            canvas.save(Canvas.ALL_SAVE_FLAG);//保存
-
-            //store
-
-            canvas.restore();//存储
-            bm.recycle();
-            bm = null;
-            wBitmap.recycle();
-            wBitmap = null;
-            return newb;
-
-        }
-
-        public Bitmap drawableToBitmap(Drawable drawable) {
-            Bitmap bitmap = Bitmap.createBitmap(
-                    drawable.getIntrinsicWidth(),
-                    drawable.getIntrinsicHeight(),
-                    drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
-                            : Bitmap.Config.RGB_565);
-            Canvas canvas = new Canvas(bitmap);
-            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-            drawable.draw(canvas);
-            return bitmap;
-        }
-
-        /**
-         * 图片压缩方法
-         *
-         * @param bitmap 图片文件
-         * @return 压缩后的字节流
-         * @throws Exception
-         */
-        public ByteArrayOutputStream compress(Bitmap bitmap) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);// 质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
-            int options = 99;
-            while (baos.toByteArray().length / 1024 > maxSize) { // 循环判断如果压缩后图片是否大于100kb,大于继续压缩
-                options -= 3;// 每次都减少10
-                //压缩比小于0，不再压缩
-                if (options < 0) {
-                    break;
-                }
-                Log.i(TAG, baos.toByteArray().length / 1024 + "");
-                baos.reset();// 重置baos即清空baos
-                bitmap.compress(Bitmap.CompressFormat.JPEG, options, baos);// 这里压缩options%，把压缩后的数据存放到baos中
-            }
-            return baos;
-        }
-
-        public ByteArrayOutputStream compress(Bitmap bitmap, int i) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            return baos;
-        }
-
-        public void setMaxSize(int maxSize) {
-            this.maxSize = maxSize;
-        }
-    }
-
-    /**
      * @author LinJ
      * @ClassName: TakePictureListener
      * @Description: 拍照监听接口，用以在拍照开始和结束后执行相应操作
@@ -665,17 +461,5 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
         public void onAnimtionEnd(Bitmap bm, boolean isVideo);
 
         public void onSavePictureEnd(String path);
-    }
-
-
-    /**
-     * dip转px
-     *
-     * @param dipValue
-     * @return
-     */
-    private int dip2px(float dipValue) {
-        final float scale = getResources().getDisplayMetrics().density;
-        return (int) (dipValue * scale + 0.5f);
     }
 }

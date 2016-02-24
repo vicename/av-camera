@@ -3,27 +3,22 @@ package com.linj.imageloader;
 import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.LinkedList;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 
-import com.linj.imageloader.ImageSizeUtil.ImageSize;
+import com.linj.imageloader.ImageUtil.ImageSize;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 
 
 /**
@@ -262,7 +257,7 @@ public class ImageLoader {
         // 加载图片
         // 图片的压缩
         // 1、获得图片需要显示的大小
-        ImageSize imageSize = ImageSizeUtil.getImageViewSize(imageView);
+        ImageSize imageSize = ImageUtil.getImageViewSize(imageView);
         // 2、压缩图片
         bm = decodeSampledBitmapFromPath(path, imageSize.width,
                 imageSize.height);
@@ -351,7 +346,7 @@ public class ImageLoader {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(path, options);
-        options.inSampleSize = ImageSizeUtil.caculateInSampleSize(options,width, height);
+        options.inSampleSize = ImageUtil.caculateInSampleSize(options, width, height);
         // 使用获得到的InSampleSize再次解析图片
         options.inJustDecodeBounds = false;
         Bitmap bitmap = BitmapFactory.decodeFile(path, options);
