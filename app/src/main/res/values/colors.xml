@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#E91E63</color>
-    <color name="colorPrimaryDark">#E91E63</color>
-    <color name="colorAccent">#DF3FFA</color>
+    <color name="colorPrimary">#f7cadb</color>
+    <color name="colorPrimaryDark">#f7cadb</color>
+    <color name="colorAccent">#f7a6b5</color>
 
     <color name="text_white_87">#ddffffff</color>
     <color name="text_white_57">#88ffffff</color>
@@ -11,13 +11,17 @@
 
 
     <!--背景色-->
-    <color name="background_normal">#f8f8f8</color>
+    <color name="background_normal">#f8f8f1</color>
+    <color name="background_dark">#000000</color>
+    <color name="background_trans_half">#44000000</color>
 
     <!--文字颜色-->
     <color name="text_display_87p">#DDffffff</color>
     <color name="text_display_57p">#8Affffff</color>
     <color name="text_main">#4d4d4d</color>
     <color name="text_light">#989898</color>
+    <color name="text_color_main">#d69da4</color>
+    <color name="text_color_light">#ceb9c0</color>
 
     <!-- general text colors -->
     <color name="text">#212121</color>

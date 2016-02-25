@@ -45,6 +45,7 @@ public class TakePhotoActivity extends BassActivity implements View.OnClickListe
     private ImageView mSwitchCameraView;
     private ImageView mSettingView;
     private ImageView mVideoIconView;
+    private ImageView mIvPotoLibrary;
     private View mHeaderBar;
     private boolean isRecording = false;
     private String mImagePath;
@@ -70,6 +71,9 @@ public class TakePhotoActivity extends BassActivity implements View.OnClickListe
         mRecordShutterButton = (ImageButton) findViewById(R.id.btn_shutter_record);
         mSwitchCameraView = (ImageView) findViewById(R.id.btn_switch_camera);
         mFlashView = (ImageView) findViewById(R.id.btn_flash_mode);
+
+        mIvPotoLibrary = ((ImageView) findViewById(R.id.iv_pic_library));
+        mIvPotoLibrary.setOnClickListener(this);
 
         mSwitchModeButton = (ImageButton) findViewById(R.id.btn_switch_mode);//切换模式
         mSettingView = (ImageView) findViewById(R.id.btn_other_setting);
@@ -195,6 +199,9 @@ public class TakePhotoActivity extends BassActivity implements View.OnClickListe
             case R.id.btn_shutter_camera:
                 mCameraShutterButton.setClickable(false);
                 mContainer.takePicture(this);
+                break;
+            case R.id.iv_pic_library:
+                choosePic();
                 break;
             case R.id.btn_thumbnail:
                 choosePic();

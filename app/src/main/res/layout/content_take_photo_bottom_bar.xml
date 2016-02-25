@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="@dimen/bottom_bar_height"
+    android:layout_height="120dp"
     android:layout_alignParentBottom="true"
-    android:background="#000"
+    android:background="@color/background_trans_half"
     android:baselineAligned="false"
     android:clickable="true"
     android:gravity="center"
@@ -19,6 +19,7 @@
         <com.linj.album.view.FilterImageView
             android:id="@+id/btn_thumbnail"
             android:layout_width="@dimen/thumbnail_imageview_size"
+            android:visibility="gone"
             android:layout_height="@dimen/thumbnail_imageview_size"
             android:background="@drawable/thumbnail_bg"
             android:contentDescription="@string/app_name"
@@ -29,11 +30,20 @@
         <ImageView
             android:id="@+id/videoicon"
             android:layout_width="25dip"
+            android:visibility="gone"
             android:layout_height="25dip"
             android:layout_gravity="center"
             android:scaleType="fitXY"
             android:focusable="false"
             android:src="@drawable/btn_play_vedio" />
+        <ImageView
+            android:id="@+id/iv_pic_library"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_photo_library_white_24dp"
+            android:scaleType="centerInside"
+            android:background="@drawable/selector_btn_no_limit_md_dark"
+            android:layout_width="44dp"
+            android:layout_height="44dp" />
     </FrameLayout>
 
     <RelativeLayout
@@ -50,10 +60,10 @@
         android:gravity="center" >
 
         <ImageButton
+            android:visibility="gone"
             android:id="@+id/btn_shutter_record"
             android:layout_width="@dimen/shutter_bottom_size"
             android:layout_height="@dimen/shutter_bottom_size"
-            android:background="@drawable/btn_shutter_record"
             android:contentDescription="@string/app_name"
             android:scaleType="fitXY" />
 
@@ -61,7 +71,7 @@
             android:id="@+id/btn_shutter_camera"
             android:layout_width="@dimen/shutter_bottom_size"
             android:layout_height="@dimen/shutter_bottom_size"
-            android:background="@drawable/btn_shutter_camera"
+            android:background="@drawable/selector_shutter_camera"
             android:contentDescription="@string/app_name"
             android:scaleType="fitXY" />
     </RelativeLayout>

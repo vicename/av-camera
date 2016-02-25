@@ -336,9 +336,8 @@ public class CameraView extends SurfaceView implements CameraOperation {
                 try {
                     mCamera.setPreviewDisplay(getHolder());
                     mCamera.setDisplayOrientation(90);
-//                    startOrientationChangeListener();//添加监听
-//                    setCameraPreviewSize();//设置预览图像尺寸
                     setCameraParameters(true);
+                    updateCameraOrientation();
                     mCamera.reconnect();
                     mCamera.startPreview();
 //                    setCameraParameters();

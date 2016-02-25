@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/colorPrimary">
+    <item>
+        <selector>
+            <item android:state_pressed="true" android:drawable="@drawable/ic_shutter_pressed_54dp" />
+            <item android:state_focused="true" android:drawable="@drawable/ic_shutter_pressed_54dp" />
+            <item android:drawable="@drawable/ic_shutter_normal_54dp" />
+        </selector>
+    </item>
+</ripple>

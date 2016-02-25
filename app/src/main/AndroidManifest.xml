@@ -9,7 +9,6 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -55,7 +54,7 @@
         <!-- 友盟统计相关 -->
         <meta-data
             android:name="UMENG_APPKEY"
-            android:value="566009ace0f55a9850002949" />
+            android:value="56aaec01e0f55a8fbe0009c0" />
         <meta-data
             android:name="UMENG_CHANNEL"
             android:value="UMENG_CHANNEL" />

@@ -66,6 +66,8 @@ public class ShowIMGActivity extends BassActivity {
     private String mPotoPath;
     private TextView tvName;
     private TextView tvSimilar;
+    private ImageView mIvGoRetakePhoto;
+    private ImageView mIvGoPhotoLibrary;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +116,11 @@ public class ShowIMGActivity extends BassActivity {
         });
         mBtnCheckFace = (Button) findViewById(R.id.btn_check_face);
         mBtnCheckFace.setOnClickListener(new ClickCheckFaceServer());
+        mIvGoRetakePhoto = ((ImageView) findViewById(R.id.iv_go_retake_photo));
+        mIvGoRetakePhoto.setOnClickListener(new ClickTakePhoto());
+        mIvGoPhotoLibrary = ((ImageView) findViewById(R.id.iv_go_photo_library));
+        mIvGoPhotoLibrary.setOnClickListener(new ClickChoosePic());
+
     }
 
     @Override
