@@ -1,10 +1,14 @@
 package com.yamedie.utils;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import android.annotation.SuppressLint;
 import android.graphics.BitmapFactory;
@@ -14,6 +18,10 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.view.View;
+import android.widget.ImageView;
 
 /**
  * Created by Li Dachang on 16/2/17.
@@ -58,6 +66,24 @@ public class ImageUtil {
     }
 
     /**
+     * 将drawable转换为Bitmap
+     *
+     * @param drawable Drawable
+     * @return bitmap
+     */
+    public static Bitmap drawableToBitmap(Drawable drawable) {
+        Bitmap bitmap = Bitmap.createBitmap(
+                drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(),
+                drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
+                        : Bitmap.Config.RGB_565);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+        drawable.draw(canvas);
+        return bitmap;
+    }
+
+    /**
      * Bitmap转换成字节数组byte[]
      *
      * @param bmp
@@ -77,38 +103,6 @@ public class ImageUtil {
      */
     public static Bitmap byte2Bitmap(byte[] buffer) {
         return BitmapFactory.decodeByteArray(buffer, 0, buffer.length);
-    }
-
-    /**
-     * 缩放本地图片
-     *
-     * @param file   本地图片路径
-     * @param width  宽
-     * @param height 高
-     * @return
-     */
-    public static Bitmap getBreviaryBitmapByFilepath(File file, int width, int height) {
-        Bitmap bitmap = null;
-
-        if (null != file && file.exists()) {
-            BitmapFactory.Options options = null;
-            if (width > 0 && height > 0) {
-                options = new BitmapFactory.Options();
-                options.inJustDecodeBounds = true;
-                bitmap = BitmapFactory.decodeFile(file.getPath(), options);
-                final int minSideLength = Math.min(width, height);
-                options.inSampleSize = computeSampleSize(options, minSideLength, width * height);
-                options.inJustDecodeBounds = false;
-                options.inInputShareable = true;
-            }
-            try {
-                bitmap = BitmapFactory.decodeFile(file.getPath(), options);
-                return bitmap;
-            } catch (OutOfMemoryError e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
     }
 
     /**
@@ -210,9 +204,160 @@ public class ImageUtil {
     }
 
     /**
+     * 保存图片,同时通知系统图库进行更新
+     *
+     * @param context   上下文
+     * @param bitmap    bitmap
+     * @param path      路径
+     * @param imageName 图片名称,用于插入到系统图库
+     * @return 是否成功
+     */
+    public static boolean savePic(Context context, Bitmap bitmap, String path, String imageName) {
+        boolean isOk;
+        File file = new File(path);
+        //如果文件所在的父文件夹不存在,则创建父文件夹
+        if (!file.getParentFile().exists()) {
+            if (!file.getParentFile().mkdirs()) {
+                return false;
+            }
+        }
+        try {
+            file.createNewFile();
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fos);
+            fos.write(bitmap2Byte(bitmap));
+            fos.flush();
+            fos.close();
+            //把文件插入到系统图库
+            MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), imageName, null);
+            //通知系统图库更新
+            context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + path)));
+            isOk = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            isOk = false;
+        }
+        return isOk;
+    }
+
+    /**
+     * 将ImageView的图片保存
+     *
+     * @param imageView ImageView
+     */
+    public static boolean savePicFromImageView(Context context, ImageView imageView, String path, String imgName) {
+        Drawable mark = imageView.getDrawable();
+        Bitmap bitmap = drawableToBitmap(mark);
+        Logger.i(1, "bitmap size:" + bitmap.getByteCount());
+        Logger.i(1, "path:" + path);
+        return savePic(context, bitmap, path, imgName);
+    }
+
+    /**
+     * 从ImageView中获取Bitmap
+     * 注意:此方法获取的是图片实际显示的大小,同时也包括imageview的一些效果如背景/阴影等.如果要获取原图,则需要获取其drawable
+     *
+     * @param view view
+     * @return bitmap
+     */
+    public static Bitmap viewToBitmap(View view) {
+        view.setDrawingCacheEnabled(true);
+        view.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache());
+        view.setDrawingCacheEnabled(false);
+        return bitmap;
+    }
+
+    /**
+     * 为Bitmap添加合成图片
+     *
+     * @param bitmap 原图bitmap
+     * @param view   被合成的view
+     * @return 处理后的图片
+     */
+    public static Bitmap composeBitmapWithView(Bitmap bitmap, View view) {
+        // TODO Auto-generated method stub
+        if (view == null || !(view.getVisibility() == View.VISIBLE)) {
+            return bitmap;
+        }
+        Bitmap wBitmap = viewToBitmap(view);
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+        int ww = wBitmap.getWidth();
+        int wh = wBitmap.getHeight();
+        Bitmap newBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(newBitmap);
+        //draw src into
+        canvas.drawBitmap(bitmap, 0, 0, null);//在 0，0坐标开始画入src
+        canvas.drawBitmap(wBitmap, w - ww - 20, h - wh - 20, null);//在src的右下角画入水印
+        //save all clip
+        canvas.save(Canvas.ALL_SAVE_FLAG);//保存
+        canvas.restore();//存储
+        bitmap.recycle();
+        bitmap = null;//回收
+        wBitmap.recycle();
+        wBitmap = null;//回收
+        return newBitmap;
+    }
+
+    /**
+     * 将两个Bitmap进行合成
+     *
+     * @param originBitmap 原始天皇巨星bitmap
+     * @param bitmap       被合成的bitmap
+     * @return 合成后的bitmap
+     */
+    public static Bitmap ComposeBitmaps(Bitmap originBitmap, Bitmap bitmap) {
+        int originBitmapWidth = originBitmap.getWidth();
+        int originBitmapHeight = originBitmap.getHeight();
+        Bitmap composedBitmap = Bitmap.createBitmap(originBitmapWidth, originBitmapHeight, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(composedBitmap);//新建一个基于处理后bitmap的画板
+        canvas.drawBitmap(originBitmap, 0, 0, null);
+        canvas.drawBitmap(bitmap, originBitmapWidth - bitmap.getWidth() - 20, originBitmapHeight - bitmap.getHeight() - 20, null);
+        canvas.save(Canvas.ALL_SAVE_FLAG);//保存
+        canvas.restore();//存储
+        originBitmap.recycle();//回收
+        bitmap.recycle();
+        return composedBitmap;
+    }
+
+    /**
+     * 缩放本地图片
+     *
+     * @param file   本地图片路径
+     * @param width  宽
+     * @param height 高
+     * @return
+     */
+    public static Bitmap getBreviaryBitmapByFilepath(File file, int width, int height) {
+        Bitmap bitmap = null;
+
+        if (null != file && file.exists()) {
+            BitmapFactory.Options options = null;
+            if (width > 0 && height > 0) {
+                options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                bitmap = BitmapFactory.decodeFile(file.getPath(), options);
+                final int minSideLength = Math.min(width, height);
+                options.inSampleSize = computeSampleSize(options, minSideLength, width * height);
+                options.inJustDecodeBounds = false;
+                options.inInputShareable = true;
+            }
+            try {
+                bitmap = BitmapFactory.decodeFile(file.getPath(), options);
+                return bitmap;
+            } catch (OutOfMemoryError e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    /**
      * 根据较长边改变图片尺寸
+     *
      * @param bitmap bitmap
-     * @param size 尺寸(像素)
+     * @param size   尺寸(像素)
      * @return bitmap
      */
     public static Bitmap scalePicByLongSize(Bitmap bitmap, int size) {

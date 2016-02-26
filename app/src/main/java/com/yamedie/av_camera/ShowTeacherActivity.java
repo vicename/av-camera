@@ -12,9 +12,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.linj.FileOperateUtil;
-import com.linj.imageloader.ImageUtil;
 import com.squareup.picasso.Picasso;
 import com.yamedie.common.CommonDefine;
+import com.yamedie.utils.ImageUtil;
 import com.yamedie.utils.Logger;
 
 import java.io.File;
@@ -27,6 +27,8 @@ public class ShowTeacherActivity extends BaseActivity {
     private String mName;
     private String mSimilarity;
     private TextView mTvName;
+    private String mSavingPath;
+    private String mSavingFileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +48,15 @@ public class ShowTeacherActivity extends BaseActivity {
         mName = getIntent().getStringExtra(CommonDefine.TAG_TEACHER_NAME);
         mSimilarity = getIntent().getStringExtra(CommonDefine.TAG_SIMILAR);
         mImgPath = getIntent().getStringExtra(CommonDefine.TAG_IMAGE_PATH);
+        String folder = FileOperateUtil.getFolderPath(ShowTeacherActivity.this, FileOperateUtil.TYPE_IMAGE, "test");
+        mSavingFileName = FileOperateUtil.createFileNmae(".jpg");
+        mSavingPath = folder + File.separator + mSavingFileName;
+        Logger.i("saving path:" + mSavingPath);
     }
 
     private void initView() {
         mIvShowTeacher = ((ImageView) findViewById(R.id.iv_teacher));
-        registerForContextMenu(mIvShowTeacher);
+        registerForContextMenu(mIvShowTeacher);//注册上下文菜单(长按呼出)
         mIvShowMyGirl = ((ImageView) findViewById(R.id.iv_my_girl));
         mTvName = ((TextView) findViewById(R.id.tv_name));
         mTvName.setText(mName + "-" + mSimilarity + getString(R.string.similarity_post));
@@ -58,6 +64,7 @@ public class ShowTeacherActivity extends BaseActivity {
         Bitmap myGirlBitmap = BitmapFactory.decodeFile(mImgPath);
         mIvShowMyGirl.setImageBitmap(myGirlBitmap);
     }
+
 
     /**
      * 将ImageView的图片保存
@@ -93,6 +100,7 @@ public class ShowTeacherActivity extends BaseActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         menu.add(0, Menu.FIRST, 0, "保存");
+        menu.add(0, 2, 0, "保存二者");
     }
 
     /**
@@ -105,7 +113,22 @@ public class ShowTeacherActivity extends BaseActivity {
     public boolean onContextItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case 1:
-                savePicFromImageView(mIvShowTeacher);
+                boolean isOk = ImageUtil.savePicFromImageView(ShowTeacherActivity.this, mIvShowTeacher, mSavingPath, mSavingFileName);
+                if (isOk) {
+                    toastGo("保存图片成功!");
+                } else {
+                    toastGo("保存图片失败!");
+                }
+                break;
+            case 2:
+                Bitmap bitmap = ImageUtil.viewToBitmap(mIvShowTeacher);
+                bitmap = ImageUtil.composeBitmapWithView(bitmap, mTvName);
+                boolean isSavingOk = ImageUtil.savePic(ShowTeacherActivity.this, bitmap, mSavingPath, mSavingFileName);
+                if (isSavingOk) {
+                    toastGo("保存图片成功!");
+                } else {
+                    toastGo("保存图片失败!");
+                }
                 break;
             default:
                 break;
