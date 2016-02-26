@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp">
+
+    <com.yamedie.view.CustomProgressBar
+        android:id="@+id/progress"
+        android:layout_centerVertical="true"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="@color/colorAccent"/>
+
+    <TextView
+        android:layout_toRightOf="@+id/progress"
+        android:layout_marginLeft="16dp"
+        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:gravity="center_vertical"
+        android:text="寻找相似的老师中..."/>
+</RelativeLayout>

@@ -129,7 +129,7 @@ public class ImageUtil {
      */
     public static byte[] bitmap2Byte(Bitmap bmp) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         return baos.toByteArray();
     }
 
@@ -201,11 +201,9 @@ public class ImageUtil {
         double w = options.outWidth;
         double h = options.outHeight;
 
-        int lowerBound = (maxNumOfPixels == -1) ? 1 : (int) Math.ceil(Math
-                .sqrt(w * h / maxNumOfPixels));
+        int lowerBound = (maxNumOfPixels == -1) ? 1 : (int) Math.ceil(Math.sqrt(w * h / maxNumOfPixels));
 
-        int upperBound = (minSideLength == -1) ? 128 : (int) Math.min(
-                Math.floor(w / minSideLength), Math.floor(h / minSideLength));
+        int upperBound = (minSideLength == -1) ? 128 : (int) Math.min(Math.floor(w / minSideLength), Math.floor(h / minSideLength));
 
         if (upperBound < lowerBound) {
             return lowerBound;
@@ -266,21 +264,25 @@ public class ImageUtil {
     /**
      * 保存图片,同时通知系统图库进行更新
      *
-     * @param context 上下文
-     * @param bitmap bitmap
-     * @param path 路径
+     * @param context   上下文
+     * @param bitmap    bitmap
+     * @param path      路径
      * @param imageName 图片名称,用于插入到系统图库
      * @return 是否成功
      */
     public static boolean savePic(Context context, Bitmap bitmap, String path, String imageName) {
-        boolean isOk = false;
+        boolean isOk;
         File file = new File(path);
-        if (file.exists()) {
-            file.delete();
+        //如果文件所在的父文件夹不存在,则创建父文件夹
+        if (!file.getParentFile().exists()) {
+            if (!file.getParentFile().mkdirs()) {
+                return false;
+            }
         }
         try {
+            file.createNewFile();
             FileOutputStream fos = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fos);
             fos.write(bitmap2Byte(bitmap));
             fos.flush();
             fos.close();
@@ -289,19 +291,33 @@ public class ImageUtil {
             //通知系统图库更新
             context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + path)));
             isOk = true;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+            isOk=false;
         }
         return isOk;
     }
 
+    /**
+     * 保存图片,同时将其加入到系统图库
+     *
+     * @param context   上下文
+     * @param bytes     字节数组
+     * @param path      存储路径
+     * @param imageName 图片名称(用于插入到系统图库)
+     * @return 是否成功
+     */
     public static boolean savePic(Context context, byte[] bytes, String path, String imageName) {
-        boolean isOk=false;
+        boolean isOk;
         File file = new File(path);
-        if (file.exists()) {
-            file.delete();
+//        if (file.exists()) {
+//            file.delete();
+//        }
+        //如果文件所在的父文件夹不存在,则创建父文件夹
+        if (!file.getParentFile().exists()) {
+            if (!file.getParentFile().mkdirs()) {
+                return false;
+            }
         }
         try {
             FileOutputStream fos = new FileOutputStream(file);
@@ -313,10 +329,9 @@ public class ImageUtil {
             //通知系统图库更新
             context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + path)));
             isOk = true;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+            isOk = false;
         }
         return isOk;
     }
@@ -331,16 +346,16 @@ public class ImageUtil {
     public static File getFileFromByte(String path, byte[] bytes) {
         File file = new File(path);
         FileOutputStream fos = null;
-        if (file.exists()) {
-            file.delete();
+        if (!file.getParentFile().exists()) {
+            if (!file.getParentFile().mkdirs()) {
+                return null;
+            }
         }
         try {
             fos = new FileOutputStream(file);
             fos.write(bytes);
             fos.flush();
             fos.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -9,8 +9,6 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.View;
@@ -31,7 +29,7 @@ import com.yamedie.utils.FileUtil;
 import com.yamedie.utils.ImageUtil;
 import com.yamedie.utils.Logger;
 
-public class TakePhotoActivity extends BassActivity implements View.OnClickListener, CameraContainer.TakePictureListener {
+public class TakePhotoActivity extends BaseActivity implements View.OnClickListener, CameraContainer.TakePictureListener {
     public final static String TAG = "TakePhotoActivity";
     private final String IMAGE_TYPE = "image/*";
     private boolean mIsRecordMode = false;

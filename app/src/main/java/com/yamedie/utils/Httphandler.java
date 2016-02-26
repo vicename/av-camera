@@ -28,7 +28,7 @@ public class Httphandler {
      * @param url             url地址
      * @param responseHandler 回调
      */
-    public static void getImgUrl(RequestParams params, String url, JsonHttpResponseHandler responseHandler) {
+    public static void postImg(RequestParams params, String url, JsonHttpResponseHandler responseHandler) {
         try {
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
             trustStore.load(null, null);

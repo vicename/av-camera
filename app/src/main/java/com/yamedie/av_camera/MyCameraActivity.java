@@ -22,7 +22,7 @@ import java.util.Date;
 import com.yamedie.surfaceView.MySurfaceView;
 import com.yamedie.utils.Logger;
 
-public class MyCameraActivity extends BassActivity implements CameraContainer.TakePictureListener{
+public class MyCameraActivity extends BaseActivity implements CameraContainer.TakePictureListener{
     private Button btn_camera_capture = null;
     private Button btn_camera_cancel = null;
     private Button btn_camera_ok = null;

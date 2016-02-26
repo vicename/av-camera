@@ -35,8 +35,10 @@ public class CommonDefine {
 
     public static final String PIC_SAVE_PATH = "av-camera";
     public static final String PIC_SAVE_Path2 = "Picture/av-camera";
+    public static final String PIC_TEMP_PATH="/storage/emulated/0/picture/av-camera/tempsdsss/";
 
     public static final String URL_UPLOAD = "http://192.168.13.76:3000/upload";
+//    public static final String
 
 
 

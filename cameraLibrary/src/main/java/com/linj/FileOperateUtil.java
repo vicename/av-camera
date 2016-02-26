@@ -78,6 +78,22 @@ public class FileOperateUtil {
 		return pathDC.toString();
 //        return pathBuilder.toString();
 	}
+	public static String getTempFolderPath(Context context,String rootPath) {
+		//本业务文件主目录
+		StringBuilder pathBuilder=new StringBuilder();
+		String path=Environment.getExternalStorageDirectory().toString();
+		Log.i("---", "path0:" + path);
+		//添加应用存储路径
+		pathBuilder.append(context.getExternalFilesDir(null).getAbsolutePath());
+		pathBuilder.append(File.separator);
+		//添加文件总目录
+		pathBuilder.append(context.getString(R.string.Files));
+		pathBuilder.append(File.separator);
+		//添加当然文件类别的路径
+		pathBuilder.append(rootPath);
+		pathBuilder.append(File.separator);
+        return pathBuilder.toString();
+	}
 
 	/**
 	 * 获取目标文件夹内指定后缀名的文件数组,按照修改日期排序

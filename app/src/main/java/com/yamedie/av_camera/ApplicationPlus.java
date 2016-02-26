@@ -2,6 +2,8 @@ package com.yamedie.av_camera;
 
 import android.app.Application;
 
+import com.yamedie.utils.Logger;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -11,8 +13,8 @@ import java.util.concurrent.Future;
  * ..-..---.-.--..---.-...-..-....-.
  */
 public class ApplicationPlus extends Application {
-    private ExecutorService mThreadPool;
     private static ApplicationPlus mInstance;
+    private ExecutorService mThreadPool;
 
     @Override
     public void onCreate() {
@@ -30,6 +32,7 @@ public class ApplicationPlus extends Application {
     }
 
     public Future submitTask(Runnable task) {
+        Logger.i("------applicationplus");
         return mThreadPool.submit(task);
     }
 }

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 import com.yamedie.av_camera.ShowIMGActivity;
 import com.yamedie.av_camera.R;
+import com.yamedie.av_camera.TakePhotoActivity;
 import com.yamedie.common.CommonDefine;
 import com.yamedie.utils.SharedPreferencesUtils;
 
@@ -95,8 +96,7 @@ public class ViewPagerAdapter extends PagerAdapter {
                             if (isFirst) {
                                 isFirst = false;
                                 Intent intent;
-                                intent = new Intent(mContext, ShowIMGActivity.class);
-                                intent.setAction(CommonDefine.ACTION_CAMERA_GO);
+                                intent = new Intent(mContext, TakePhotoActivity.class);
                                 mContext.startActivity(intent);
                                 SharedPreferencesUtils sPref = new SharedPreferencesUtils(mContext);
                                 sPref.saveIn(CommonDefine.IS_FIRST,false);

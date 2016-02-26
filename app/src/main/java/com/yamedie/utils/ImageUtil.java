@@ -113,8 +113,9 @@ public class ImageUtil {
 
     /**
      * 估算图片大小
-     * @param options options
-     * @param minSideLength 短边长度
+     *
+     * @param options        options
+     * @param minSideLength  短边长度
      * @param maxNumOfPixels 最大像素数
      * @return 图片大小
      */
@@ -132,7 +133,7 @@ public class ImageUtil {
         return roundedSize;
     }
 
-    private static int computeInitialSampleSize(BitmapFactory.Options options,int minSideLength, int maxNumOfPixels) {
+    private static int computeInitialSampleSize(BitmapFactory.Options options, int minSideLength, int maxNumOfPixels) {
         double w = options.outWidth;
         double h = options.outHeight;
 
@@ -157,12 +158,13 @@ public class ImageUtil {
 
     /**
      * 获取图片缩略图
+     *
      * @param imagePath 路径
-     * @param width 宽
-     * @param height 高
+     * @param width     宽
+     * @param height    高
      * @return 缩略图bitmap
      */
-    public static Bitmap getImageThumbnail(String imagePath, int width,int height) {
+    public static Bitmap getImageThumbnail(String imagePath, int width, int height) {
         Bitmap bitmap = null;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -190,14 +192,14 @@ public class ImageUtil {
 
     /**
      * 获取视频缩略图
+     *
      * @param videoPath 视频路径
-     * @param width 宽
-     * @param height 高
-     * @param kind 类型
+     * @param width     宽
+     * @param height    高
+     * @param kind      类型
      * @return 缩略图bitmap
      */
-    public static Bitmap getVideoThumbnail(String videoPath, int width,
-                                           int height, int kind) {
+    public static Bitmap getVideoThumbnail(String videoPath, int width, int height, int kind) {
         Bitmap bitmap = null;
         bitmap = ThumbnailUtils.createVideoThumbnail(videoPath, kind);
         System.out.println("w" + bitmap.getWidth());
@@ -208,9 +210,37 @@ public class ImageUtil {
     }
 
     /**
-     * 根据宽高压缩图片
+     * 根据较长边改变图片尺寸
+     * @param bitmap bitmap
+     * @param size 尺寸(像素)
+     * @return bitmap
+     */
+    public static Bitmap scalePicByLongSize(Bitmap bitmap, int size) {
+        //获取图片宽高
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        float scale;
+        //选取较长边计算缩放比例
+        if (width >= height) {
+            scale = ((float) size) / width;
+        } else {
+            scale = ((float) size) / height;
+        }
+        //使用矩阵处理图片
+        Matrix matrix = new Matrix();
+        matrix.postScale(scale, scale);
+        Logger.i("---", "old bitmap:" + width + "_" + height);
+        //生成新的bitmap
+        Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+        Logger.i("---", "new bitmap:" + newBitmap.getWidth() + "_" + newBitmap.getHeight());
+        return newBitmap;
+    }
+
+    /**
+     * 限定长边长度对半压缩图片
+     *
      * @param image 图片bitmap
-     * @param size 压缩后宽度
+     * @param size  限定长度
      * @return 压缩后bitmap
      */
     public static Bitmap compressBitmap(Bitmap image, float size) {
@@ -239,16 +269,17 @@ public class ImageUtil {
         if (be <= 0)
             be = 1;
         newOpts.inSampleSize = be;
-        Logger.i("------","sampleSize:"+be);
+        Logger.i("------", "sampleSize:" + be);
         bais = new ByteArrayInputStream(baos.toByteArray());
         bitmap = BitmapFactory.decodeStream(bais, null, newOpts);
         return compressBiamapSample(bitmap);
     }
 
     /**
-     * 压缩图片
-     * @param image
-     * @return
+     * 压缩图片至100k以内
+     *
+     * @param image bitmap
+     * @return bitmap
      */
     public static Bitmap compressBiamapSample(Bitmap image) {
 
@@ -295,6 +326,7 @@ public class ImageUtil {
 
     /**
      * 根据路径判断是否为图片
+     *
      * @param path 路径
      * @return 是否是图片
      */

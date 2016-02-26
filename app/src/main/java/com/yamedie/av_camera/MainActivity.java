@@ -24,7 +24,7 @@ import java.util.Date;
 import com.yamedie.utils.CommonUtils;
 import com.yamedie.utils.Logger;
 
-public class MainActivity extends BassActivity {
+public class MainActivity extends BaseActivity {
     private final int REQUEST_CAPTURE_IMAGE = 10086;
     private Button btnTakeCamera;
     private Bitmap photoBit;

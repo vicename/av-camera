@@ -1,6 +1,8 @@
 package com.yamedie.av_camera;
 
+import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -15,6 +17,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
+import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -25,6 +29,7 @@ import com.faceplusplus.api.FaceDetecter;
 import com.facepp.error.FaceppParseException;
 import com.facepp.http.HttpRequests;
 import com.facepp.http.PostParameters;
+import com.linj.FileOperateUtil;
 import com.linj.imageloader.DownloadImgUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -47,7 +52,7 @@ import com.yamedie.utils.Httphandler;
 import com.yamedie.utils.ImageUtil;
 import com.yamedie.utils.Logger;
 
-public class ShowIMGActivity extends BassActivity {
+public class ShowIMGActivity extends BaseActivity {
     private final String IMAGE_TYPE = "image/*";
     //这里的IMAGE_CODE是自己任意定义的
     private final int TAG_CHOOSE_IMG = 0;
@@ -63,11 +68,13 @@ public class ShowIMGActivity extends BassActivity {
     private Handler detectHanler;
     private HandlerThread detectThread;
     private HttpRequests request;
-    private String mPotoPath;
+    private String mPhotoPath;
     private TextView tvName;
     private TextView tvSimilar;
     private ImageView mIvGoRetakePhoto;
     private ImageView mIvGoPhotoLibrary;
+    private AlertDialog mConnectingDialog;
+    private boolean mFlagIsConnecting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,17 +95,20 @@ public class ShowIMGActivity extends BassActivity {
         request = new HttpRequests(CommonDefine.API_KEY_VALUE, CommonDefine.API_SECRET_VALUE);
         Intent intent = getIntent();
         if (intent != null) {
-            mPotoPath = getIntent().getStringExtra(CommonDefine.TAG_IMAGE_PATH);//获取传过来的图片
-            if (mPotoPath != null) {
-                mBitmap = BitmapFactory.decodeFile(mPotoPath);//获取图片为bitmap
+            mPhotoPath = getIntent().getStringExtra(CommonDefine.TAG_IMAGE_PATH);//获取传过来的图片
+            if (mPhotoPath != null) {
+                mBitmap = BitmapFactory.decodeFile(mPhotoPath);//获取图片为bitmap
             }
         }
-        Logger.i("---", mPotoPath);
+        if (!TextUtils.isEmpty(mPhotoPath)) {
+            Logger.i("---", mPhotoPath);
+        }
     }
 
     private void initView() {
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new ClickCheckFaceServer());
+        fab.setRippleColor(getResources().getColor(R.color.bright_foreground_inverse_material_light));
         mIvShowPhoto = (ImageView) findViewById(R.id.iv_show_photo);
         mIvShowPhoto.setImageBitmap(mBitmap);
         tvName = (TextView) findViewById(R.id.tv_name);
@@ -145,8 +155,8 @@ public class ShowIMGActivity extends BassActivity {
                 //有的时候uri获取过来是file路径,所以要进行区分,否则会空指针
                 if (originalUri.toString().startsWith("file:///")) {
                     if (ImageUtil.isPicture(originalUri.toString())) {
-                        mPotoPath = originalUri.getPath();
-                        mBitmap = BitmapFactory.decodeFile(mPotoPath);
+                        mPhotoPath = originalUri.getPath();
+                        mBitmap = BitmapFactory.decodeFile(mPhotoPath);
                         mIvShowPhoto.setImageBitmap(mBitmap);
                     } else {
                         toastGo("您选取的不是图片!");
@@ -157,7 +167,7 @@ public class ShowIMGActivity extends BassActivity {
                     mIvShowPhoto.setImageBitmap(mBitmap);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                         Logger.i("-------------------------");
-                        mPotoPath = FileUtil.getPathFromUri(getApplication(), originalUri);
+                        mPhotoPath = FileUtil.getPathFromUri(getApplication(), originalUri);
                     } else {
                         //显得到bitmap图片这里开始的第二部分，获取图片的路径：
                         String[] proj = {MediaStore.Images.Media.DATA};
@@ -170,10 +180,10 @@ public class ShowIMGActivity extends BassActivity {
                         Logger.i(1, "cusor index:" + column_index);
                         Logger.i(1, "cusor get String:" + cursor.getString(0));
                         //最后根据索引值获取图片路径
-                        mPotoPath = cursor.getString(column_index);
+                        mPhotoPath = cursor.getString(column_index);
                         cursor.close();
                     }
-                    Logger.i("-----", "选取图片path:" + mPotoPath);
+                    Logger.i("-----", "选取图片path:" + mPhotoPath);
                     tvName.setVisibility(View.INVISIBLE);
                     tvSimilar.setVisibility(View.INVISIBLE);
                 }
@@ -192,7 +202,7 @@ public class ShowIMGActivity extends BassActivity {
             }
             String imagePath = bundle.getString("aaaa");
             if (imagePath != null) {
-                mPotoPath = imagePath;
+                mPhotoPath = imagePath;
                 File file = new File(imagePath);
                 Uri uri = Uri.fromFile(file);
                 Bitmap bm = BitmapFactory.decodeFile(imagePath);
@@ -245,8 +255,10 @@ public class ShowIMGActivity extends BassActivity {
 
         @Override
         public void onClick(View v) {
-            upLoadImg();
-//            upLoadPicTest();
+            createConnectingDialog();
+            CommonUtils.disableViewForSeconds(v, 666);
+//            upLoadImg();
+            upLoadPicTest();
 //            setAVPic("http://203.100.82.13/大槻响/9.jpg");
 //            Picasso.with(getApplicationContext()).load("http://203.100.82.13/大槻响/9.jpg").into(mIvShowPhoto);
         }
@@ -293,10 +305,19 @@ public class ShowIMGActivity extends BassActivity {
 
     private void upLoadPicTest() {
         RequestParams params = new RequestParams();
-        File file = new File(mPotoPath);
-        mBitmap = ImageUtil.compressBitmap(mBitmap, 400);
-        byte[] bytes = FileUtil.Bitmap2Bytes(mBitmap);
-        file = FileUtil.getFileFromByte(mPotoPath, bytes);
+        File file = new File(mPhotoPath);
+        Logger.i(1, "bitmap height:" + mBitmap.getHeight());
+        Bitmap bitmap = mBitmap;
+        if (mBitmap.getHeight() >= 1000) {
+            bitmap = ImageUtil.scalePicByLongSize(mBitmap, 960);
+        }
+        Logger.i(1, "bitmap length:" + bitmap.getByteCount());
+        Logger.i(1, "bitmap height:" + bitmap.getHeight());
+        byte[] bytes = FileUtil.Bitmap2Bytes(bitmap);
+        String tempPath = FileOperateUtil.getTempFolderPath(ShowIMGActivity.this, "av-camera");
+        tempPath = CommonDefine.PIC_TEMP_PATH + "temp.jpg";
+        Logger.i(1, "---temp path:" + tempPath);
+        file = FileUtil.bytes2File(tempPath, bytes);
         try {
             params.put("pic", file);
         } catch (FileNotFoundException e) {
@@ -304,16 +325,78 @@ public class ShowIMGActivity extends BassActivity {
         }
         params.put("name", "hahahahaha");
 
-        Httphandler.getImgUrl(params, CommonDefine.URL_UPLOAD, new JsonHttpResponseHandler() {
+        Httphandler.postImg(params, CommonDefine.URL_UPLOAD, new JsonHttpResponseHandler() {
+            @Override
+            public void onFinish() {
+                super.onFinish();
+                mConnectingDialog.dismiss();
+            }
+
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 super.onSuccess(statusCode, headers, response);
+                Logger.i(1, "upload status:" + statusCode);
+                Logger.i(1, "respons" + response.toString());
+                if (!mFlagIsConnecting) {
+                    return;
+                }
+                if (statusCode == 200) {
+                    try {
+                        int status = response.getInt("status");
+                        String info;
+                        Logger.i(1, "status:" + status);
+                        switch (status) {
+                            case 0:
+                                info = response.getString("info");
+                                JSONArray girls = response.getJSONArray("av_girls");
+                                JSONObject girlJb = girls.getJSONObject(0);
+                                String url = girlJb.getString("url");
+                                String name = girlJb.getString("name");
+                                String similarity = girlJb.getString("similarity");
+                                double similar = girlJb.getDouble("similarity");
+                                Logger.i(1, "url:" + url + "--name:" + name + "--similarity:" + similarity);
+                                goShowTeacher(url, name, similar);
+                                break;
+                            case -1:
+                                toastGo("呃,发生了未知错误...");
+                                break;
+                            case 1201:
+                                info = response.getString("info");
+                                toastGo("没有识别出人脸,请重新拍一张吧~");
+                                break;
+                            case 1202:
+                                info = response.getString("info");
+                                toastGo("此人骨骼惊奇,没能帮你找到相似的老师呢");
+                                break;
+                            case 4001:
+                                toastGo("你选的图片太大啦,人家装不下了呢");
+                                break;
+                            case 4002:
+                                toastGo("这种文件格式人家放不进去呢,选个别的吧");
+                                break;
+                            case 4003:
+                                toastGo("非法请求?(警惕脸)");
+                                break;
+                            case 4004:
+                                toastGo("图片上传失败,请重新试一下吧");
+                                break;
+                            case 4005:
+                                toastGo("文件太多啦,人家都装满了呢");
+                                break;
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    toastGo("网络出现问题!");
+                }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
                 toastGo("上传失败!");
+                mConnectingDialog.dismiss();
             }
         });
 
@@ -516,7 +599,7 @@ public class ShowIMGActivity extends BassActivity {
     private void goShowTeacher(String imgUrl, String name, double similarity) {
         Intent intent = new Intent();
         intent.setClass(ShowIMGActivity.this, ShowTeacherActivity.class);
-        intent.putExtra(CommonDefine.TAG_IMAGE_PATH, mPotoPath);
+        intent.putExtra(CommonDefine.TAG_IMAGE_PATH, mPhotoPath);
         intent.putExtra(CommonDefine.TAG_IMAGE_URL, imgUrl);
         intent.putExtra(CommonDefine.TAG_TEACHER_NAME, name);
         intent.putExtra(CommonDefine.TAG_SIMILAR, String.valueOf(similarity));
@@ -540,6 +623,30 @@ public class ShowIMGActivity extends BassActivity {
         tvSimilar.setVisibility(View.VISIBLE);
         tvSimilar.setText(similarity + "%相似度!");
 
+    }
+
+    /**
+     * 创建连接对话框
+     */
+    private void createConnectingDialog() {
+        mFlagIsConnecting=true;
+        final View connectingDialogView = View.inflate(ShowIMGActivity.this, R.layout.dialog_connecting, null);
+        android.app.AlertDialog.Builder ab = new android.app.AlertDialog.Builder(ShowIMGActivity.this);
+        ab.setView(connectingDialogView);
+        ab.setCancelable(false);
+        ab.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    mConnectingDialog.dismiss();
+                    mFlagIsConnecting=false;
+                    return true;
+                }
+                return false;
+            }
+        });
+        mConnectingDialog = ab.create();
+        mConnectingDialog.show();
     }
 
     /**

@@ -2,7 +2,9 @@ package com.linj.imageloader;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.WindowManager;
 
 /**
@@ -12,14 +14,11 @@ import android.view.WindowManager;
 public class CommonUtil {
 
     /**
-     * dip转px
-     *
-     * @param dipValue
-     * @return
+     * Convert Dp to Pixel
      */
-    private static int dip2px(Context context, float dipValue) {
-        final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (dipValue * scale + 0.5f);
+    public static int dpToPx(float dp, Resources resources) {
+        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.getDisplayMetrics());
+        return (int) px;
     }
 
 

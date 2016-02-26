@@ -6,7 +6,7 @@ import android.view.WindowManager;
 
 import com.yamedie.view.ViewPagerAdapter;
 
-public class GuidActivity extends BassActivity implements ViewPager.OnPageChangeListener {
+public class GuidActivity extends BaseActivity implements ViewPager.OnPageChangeListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

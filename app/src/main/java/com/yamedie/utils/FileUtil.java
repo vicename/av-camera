@@ -80,7 +80,7 @@ public class FileUtil {
      */
     public static byte[] Bitmap2Bytes(Bitmap bm) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         return baos.toByteArray();
     }
 
@@ -90,7 +90,7 @@ public class FileUtil {
      * @param file file
      * @return byteArray
      */
-    public static byte[] getBytesFromFile(File file) {
+    public static byte[] file2Bytes(File file) {
         if (file == null) {
             return null;
         }
@@ -105,34 +105,44 @@ public class FileUtil {
             out.close();
             return out.toByteArray();
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
         return null;
     }
 
-    public static File getFileFromByte(String path, byte[] bytes) {
+
+    /**
+     * 通过二进制数组转为保存为文件
+     * @param path 存储路径
+     * @param bytes 二进制数组
+     * @return 文件
+     */
+    public static File bytes2File(String path, byte[] bytes) {
         File file = new File(path);
-        FileOutputStream fos = null;
-        if (file.exists()) {
-            file.delete();
+        FileOutputStream fos;
+        //如果文件的父文件夹不存在,则进行创建
+        if (!file.getParentFile().exists()) {
+            if (!file.getParentFile().mkdirs()) {
+                return null;
+            }
         }
         try {
             fos = new FileOutputStream(file);
             fos.write(bytes);
             fos.flush();
             fos.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
         return file;
     }
 
     /**
      * 对于android4.4以上版本,使用系统图库获取图片传来的uri为content provider的uri文件,需要使用特殊的方法获取路径
+     *
      * @param context 上下文
-     * @param uri uri
+     * @param uri     uri
      * @return 路径
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -170,12 +180,12 @@ public class FileUtil {
 
                 return getDataColumn(context, contentUri, selection, selectionArgs);
             }
-        }else if ("content".equalsIgnoreCase(uri.getScheme())) {
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
             if (isGooglePhotosUri(uri)) {
                 return uri.getLastPathSegment();
             }
             return getDataColumn(context, uri, null, null);
-        }else if ("file".equalsIgnoreCase(uri.getScheme())) {
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
         return null;

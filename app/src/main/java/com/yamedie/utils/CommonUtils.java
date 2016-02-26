@@ -5,6 +5,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Handler;
+import android.view.View;
 
 /**
  * Created by Li Dachang on 16/1/25.
@@ -29,5 +31,20 @@ public class CommonUtils {
     public static Bitmap pathToBitmap(Uri uri){
         Bitmap bm = BitmapFactory.decodeFile(uri.toString());
         return bm;
+    }
+
+    /**
+     * 让按钮一段时间内不可点击
+     * @param view view控件
+     * @param time 不可点击的时间
+     */
+    public static void disableViewForSeconds(final View view,int time) {
+        view.setClickable(false);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                view.setClickable(true);
+            }
+        }, time);
     }
 }
