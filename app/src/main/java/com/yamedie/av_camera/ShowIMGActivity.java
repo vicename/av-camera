@@ -216,17 +216,6 @@ public class ShowIMGActivity extends BaseActivity {
     }
 
     /**
-     * 启动相机
-     */
-    private void takePhoto() {
-        if (CommonUtils.checkCameraHardWare(ShowIMGActivity.this)) {
-//            Intent intent = new Intent(ShowIMGActivity.this, TakePhotoActivity.class);
-//            startActivityForResult(intent, TAG_TAKE_PHOTO);
-            finish();
-        }
-    }
-
-    /**
      * 选择图片
      */
     private void choosePic() {
@@ -239,7 +228,7 @@ public class ShowIMGActivity extends BaseActivity {
 
         @Override
         public void onClick(View v) {
-            takePhoto();
+            finish();
         }
     }
 
@@ -258,7 +247,7 @@ public class ShowIMGActivity extends BaseActivity {
             createConnectingDialog();
             CommonUtils.disableViewForSeconds(v, 666);
 //            upLoadImg();
-            upLoadPicTest();
+            upLoadAndCheckFace();
 //            setAVPic("http://203.100.82.13/大槻响/9.jpg");
 //            Picasso.with(getApplicationContext()).load("http://203.100.82.13/大槻响/9.jpg").into(mIvShowPhoto);
         }
@@ -303,9 +292,8 @@ public class ShowIMGActivity extends BaseActivity {
         }
     }
 
-    private void upLoadPicTest() {
+    private void upLoadAndCheckFace() {
         RequestParams params = new RequestParams();
-        File file = new File(mPhotoPath);
         Logger.i(1, "bitmap height:" + mBitmap.getHeight());
         Bitmap bitmap = mBitmap;
         if (mBitmap.getHeight() >= 1000) {
@@ -317,7 +305,7 @@ public class ShowIMGActivity extends BaseActivity {
         String tempPath = FileOperateUtil.getTempFolderPath(ShowIMGActivity.this, "av-camera");
         tempPath = CommonDefine.PIC_TEMP_PATH + "temp.jpg";
         Logger.i(1, "---temp path:" + tempPath);
-        file = FileUtil.bytes2File(tempPath, bytes);
+        File file = FileUtil.bytes2File(tempPath, bytes);
         try {
             params.put("pic", file);
         } catch (FileNotFoundException e) {
@@ -400,31 +388,6 @@ public class ShowIMGActivity extends BaseActivity {
             }
         });
 
-    }
-
-    private void checkFace(String imgUrl) {
-        RequestParams params = new RequestParams();
-        params.put(CommonDefine.API_KEY, CommonDefine.API_KEY_VALUE);
-        params.put(CommonDefine.API_SECRET, CommonDefine.API_SECRET_VALUE);
-        params.put("url", imgUrl);
-        String url = CommonDefine.FACE_URL_0;
-        Httphandler.checkFace(ShowIMGActivity.this, params, url, new JsonHttpResponseHandler() {
-            @Override
-            public void onStart() {
-                super.onStart();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
-                toastGo("连接失败");
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                super.onSuccess(statusCode, headers, response);
-            }
-        });
     }
 
     /**

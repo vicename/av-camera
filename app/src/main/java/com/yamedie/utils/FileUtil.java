@@ -80,7 +80,7 @@ public class FileUtil {
      */
     public static byte[] Bitmap2Bytes(Bitmap bm) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        bm.compress(Bitmap.CompressFormat.JPEG, 70, baos);
         return baos.toByteArray();
     }
 
