@@ -38,7 +38,10 @@ public class CommonDefine {
     public static final String PIC_TEMP_PATH="/storage/emulated/0/picture/av-camera/tempsdsss/";
 
     public static final String URL_UPLOAD = "http://192.168.13.76:3000/upload";
+    public static final String URL_UPLOAD_2 = "http://stg-avcam.leanapp.cn/upload";
 //    public static final String
+
+    public static final String URL_IMAGE_LOAD_TEST = "https://pic2.zhimg.com/82b27a292c6520c36afa29972d0673fd_b.jpg";
 
 
 

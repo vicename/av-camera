@@ -80,13 +80,14 @@ public class DownloadImgUtils {
         try {
             URL url = new URL(urlStr);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setInstanceFollowRedirects(true);//处理重定向
             is = new BufferedInputStream(conn.getInputStream());
 //            is.mark(is.available());
-            int connInt=conn.getHeaderFieldInt("Content-Length", 0);
-            if (connInt ==0) {
+            int connInt = conn.getHeaderFieldInt("Content-Length", 0);
+            if (connInt == 0) {
                 return null;
             }
-            is.mark(connInt+10);
+            is.mark(connInt + 10);
             Log.i("-----", "--is.available:" + connInt);
             Options opts = new Options();
             opts.inJustDecodeBounds = true;
@@ -102,6 +103,58 @@ public class DownloadImgUtils {
             bitmap = BitmapFactory.decodeStream(is, null, opts);
 
             conn.disconnect();
+            return bitmap;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (is != null)
+                    is.close();
+            } catch (IOException e) {
+            }
+            try {
+                if (fileOutputStream != null)
+                    fileOutputStream.close();
+            } catch (IOException e) {
+            }
+        }
+
+        return null;
+
+    }
+
+    /**
+     * 根据url下载图片在指定的文件
+     *
+     * @param urlStr 图片url地址
+     * @return bitmap
+     */
+    public static Bitmap downloadImgByUrl(String urlStr) {
+        FileOutputStream fileOutputStream = null;
+        InputStream is = null;
+        try {
+            URL url = new URL(urlStr);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setInstanceFollowRedirects(true);//处理重定向
+            is = new BufferedInputStream(conn.getInputStream());
+//            is.mark(is.available());
+            int connInt = conn.getHeaderFieldInt("Content-Length", 0);
+            if (connInt == 0) {
+                return null;
+            }
+            is.mark(connInt + 10);
+            Log.i("-----", "--is.available:" + connInt);
+            Options opts = new Options();
+            opts.inJustDecodeBounds = true;
+            Bitmap bitmap = BitmapFactory.decodeStream(is, null, opts);
+            opts.inJustDecodeBounds = false;
+            is.reset();
+            bitmap = BitmapFactory.decodeStream(is, null, opts);
+            conn.disconnect();
+            if (bitmap != null) {
+                return bitmap;
+            }
             return bitmap;
 
         } catch (Exception e) {

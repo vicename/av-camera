@@ -297,7 +297,7 @@ public class ShowIMGActivity extends BaseActivity {
         Logger.i(1, "bitmap height:" + mBitmap.getHeight());
         Bitmap bitmap = mBitmap;
         if (mBitmap.getHeight() >= 1000) {
-            bitmap = ImageUtil.scalePicByLongSize(mBitmap, 960);
+            bitmap = ImageUtil.scalePicByMaxSide(mBitmap, 960);
         }
         Logger.i(1, "bitmap length:" + bitmap.getByteCount());
         Logger.i(1, "bitmap height:" + bitmap.getHeight());
@@ -313,7 +313,7 @@ public class ShowIMGActivity extends BaseActivity {
         }
         params.put("name", "hahahahaha");
 
-        Httphandler.postImg(params, CommonDefine.URL_UPLOAD, new JsonHttpResponseHandler() {
+        Httphandler.postImg(params, CommonDefine.URL_UPLOAD_2, new JsonHttpResponseHandler() {
             @Override
             public void onFinish() {
                 super.onFinish();

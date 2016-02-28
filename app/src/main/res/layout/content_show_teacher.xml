@@ -32,8 +32,8 @@
 
                 <ImageView
                     android:id="@+id/iv_my_girl"
-                    android:layout_width="96dp"
-                    android:layout_height="96dp"
+                    android:layout_width="@dimen/thumbnail_size"
+                    android:layout_height="@dimen/thumbnail_size"
                     android:layout_alignBottom="@+id/iv_teacher"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"

@@ -86,12 +86,12 @@ public class ImageUtil {
     /**
      * Bitmap转换成字节数组byte[]
      *
-     * @param bmp
+     * @param bitmap
      * @return
      */
-    public static byte[] bitmap2Byte(Bitmap bmp) {
+    public static byte[] bitmap2Byte(Bitmap bitmap) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
         return baos.toByteArray();
     }
 
@@ -127,6 +127,14 @@ public class ImageUtil {
         return roundedSize;
     }
 
+    /**
+     * 估算原始大小
+     *
+     * @param options        options
+     * @param minSideLength  短边长度
+     * @param maxNumOfPixels 长边长度
+     * @return 图片大小
+     */
     private static int computeInitialSampleSize(BitmapFactory.Options options, int minSideLength, int maxNumOfPixels) {
         double w = options.outWidth;
         double h = options.outHeight;
@@ -159,16 +167,16 @@ public class ImageUtil {
      * @return 缩略图bitmap
      */
     public static Bitmap getImageThumbnail(String imagePath, int width, int height) {
-        Bitmap bitmap = null;
+        Bitmap bitmap;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         bitmap = BitmapFactory.decodeFile(imagePath, options);
         options.inJustDecodeBounds = false;
-        int h = options.outHeight;
-        int w = options.outWidth;
-        int beWidth = w / width;
-        int beHeight = h / height;
-        int be = 1;
+        int outHeight = options.outHeight;
+        int outWidth = options.outWidth;
+        int beWidth = outWidth / width;
+        int beHeight = outHeight / height;
+        int be;
         if (beWidth < beHeight) {
             be = beWidth;
         } else {
@@ -179,8 +187,7 @@ public class ImageUtil {
         }
         options.inSampleSize = be;
         bitmap = BitmapFactory.decodeFile(imagePath, options);
-        bitmap = ThumbnailUtils.extractThumbnail(bitmap, width, height,
-                ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+        bitmap = ThumbnailUtils.extractThumbnail(bitmap, width, height, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
         return bitmap;
     }
 
@@ -194,10 +201,8 @@ public class ImageUtil {
      * @return 缩略图bitmap
      */
     public static Bitmap getVideoThumbnail(String videoPath, int width, int height, int kind) {
-        Bitmap bitmap = null;
+        Bitmap bitmap;
         bitmap = ThumbnailUtils.createVideoThumbnail(videoPath, kind);
-        System.out.println("w" + bitmap.getWidth());
-        System.out.println("h" + bitmap.getHeight());
         bitmap = ThumbnailUtils.extractThumbnail(bitmap, width, height,
                 ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
         return bitmap;
@@ -248,19 +253,17 @@ public class ImageUtil {
     public static boolean savePicFromImageView(Context context, ImageView imageView, String path, String imgName) {
         Drawable mark = imageView.getDrawable();
         Bitmap bitmap = drawableToBitmap(mark);
-        Logger.i(1, "bitmap size:" + bitmap.getByteCount());
-        Logger.i(1, "path:" + path);
         return savePic(context, bitmap, path, imgName);
     }
 
     /**
      * 从ImageView中获取Bitmap
-     * 注意:此方法获取的是图片实际显示的大小,同时也包括imageview的一些效果如背景/阴影等.如果要获取原图,则需要获取其drawable
+     * 注意:此方法获取的是图片实际显示的大小,同时也包括imageView的一些效果如背景/阴影等.如果要获取原图,则需要获取其drawable
      *
      * @param view view
      * @return bitmap
      */
-    public static Bitmap viewToBitmap(View view) {
+    public static Bitmap getBitmapFromView(View view) {
         view.setDrawingCacheEnabled(true);
         view.buildDrawingCache();
         Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache());
@@ -271,52 +274,50 @@ public class ImageUtil {
     /**
      * 为Bitmap添加合成图片
      *
-     * @param bitmap 原图bitmap
-     * @param view   被合成的view
+     * @param originalBitmap 原图bitmap
+     * @param view           被合成的view
      * @return 处理后的图片
      */
-    public static Bitmap composeBitmapWithView(Bitmap bitmap, View view) {
+    public static Bitmap compositeBitmapWithView(Bitmap originalBitmap, View view) {
         // TODO Auto-generated method stub
         if (view == null || !(view.getVisibility() == View.VISIBLE)) {
-            return bitmap;
+            return originalBitmap;
         }
-        Bitmap wBitmap = viewToBitmap(view);
-        int w = bitmap.getWidth();
-        int h = bitmap.getHeight();
-        int ww = wBitmap.getWidth();
-        int wh = wBitmap.getHeight();
-        Bitmap newBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        Bitmap tempBitmap = getBitmapFromView(view);//获取view的Bitmap
+        int oWidth = originalBitmap.getWidth();
+        int oHeight = originalBitmap.getHeight();
+        int tempWidth = tempBitmap.getWidth();
+        int tempHeight = tempBitmap.getHeight();
+        Bitmap newBitmap = Bitmap.createBitmap(oWidth, oHeight, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(newBitmap);
         //draw src into
-        canvas.drawBitmap(bitmap, 0, 0, null);//在 0，0坐标开始画入src
-        canvas.drawBitmap(wBitmap, w - ww - 20, h - wh - 20, null);//在src的右下角画入水印
+        canvas.drawBitmap(originalBitmap, 0, 0, null);//在 0，0坐标开始画入src
+        canvas.drawBitmap(tempBitmap, oWidth - tempWidth - 20, oHeight - tempHeight - 20, null);//在src的右下角画入水印
         //save all clip
         canvas.save(Canvas.ALL_SAVE_FLAG);//保存
         canvas.restore();//存储
-        bitmap.recycle();
-        bitmap = null;//回收
-        wBitmap.recycle();
-        wBitmap = null;//回收
+        originalBitmap.recycle();
+        tempBitmap.recycle();
         return newBitmap;
     }
 
     /**
      * 将两个Bitmap进行合成
      *
-     * @param originBitmap 原始天皇巨星bitmap
-     * @param bitmap       被合成的bitmap
+     * @param originalBitmap 原始天皇巨星bitmap
+     * @param bitmap         被合成的bitmap
      * @return 合成后的bitmap
      */
-    public static Bitmap ComposeBitmaps(Bitmap originBitmap, Bitmap bitmap) {
-        int originBitmapWidth = originBitmap.getWidth();
-        int originBitmapHeight = originBitmap.getHeight();
+    public static Bitmap compositeBitmaps(Bitmap originalBitmap, Bitmap bitmap) {
+        int originBitmapWidth = originalBitmap.getWidth();
+        int originBitmapHeight = originalBitmap.getHeight();
         Bitmap composedBitmap = Bitmap.createBitmap(originBitmapWidth, originBitmapHeight, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(composedBitmap);//新建一个基于处理后bitmap的画板
-        canvas.drawBitmap(originBitmap, 0, 0, null);
+        canvas.drawBitmap(originalBitmap, 0, 0, null);
         canvas.drawBitmap(bitmap, originBitmapWidth - bitmap.getWidth() - 20, originBitmapHeight - bitmap.getHeight() - 20, null);
         canvas.save(Canvas.ALL_SAVE_FLAG);//保存
         canvas.restore();//存储
-        originBitmap.recycle();//回收
+        originalBitmap.recycle();//回收
         bitmap.recycle();
         return composedBitmap;
     }
@@ -327,11 +328,10 @@ public class ImageUtil {
      * @param file   本地图片路径
      * @param width  宽
      * @param height 高
-     * @return
+     * @return bitmap
      */
     public static Bitmap getBreviaryBitmapByFilepath(File file, int width, int height) {
-        Bitmap bitmap = null;
-
+        Bitmap bitmap;
         if (null != file && file.exists()) {
             BitmapFactory.Options options = null;
             if (width > 0 && height > 0) {
@@ -356,14 +356,14 @@ public class ImageUtil {
     /**
      * 根据较长边改变图片尺寸
      *
-     * @param bitmap bitmap
-     * @param size   尺寸(像素)
+     * @param originalBitmap bitmap
+     * @param size           尺寸(像素)
      * @return bitmap
      */
-    public static Bitmap scalePicByLongSize(Bitmap bitmap, int size) {
+    public static Bitmap scalePicByMaxSide(Bitmap originalBitmap, int size) {
         //获取图片宽高
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
+        int width = originalBitmap.getWidth();
+        int height = originalBitmap.getHeight();
         float scale;
         //选取较长边计算缩放比例
         if (width >= height) {
@@ -374,28 +374,25 @@ public class ImageUtil {
         //使用矩阵处理图片
         Matrix matrix = new Matrix();
         matrix.postScale(scale, scale);
-        Logger.i("---", "old bitmap:" + width + "_" + height);
         //生成新的bitmap
-        Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
-        Logger.i("---", "new bitmap:" + newBitmap.getWidth() + "_" + newBitmap.getHeight());
-        return newBitmap;
+        Bitmap bitmap = Bitmap.createBitmap(originalBitmap, 0, 0, width, height, matrix, true);
+        return bitmap;
     }
 
     /**
      * 限定长边长度对半压缩图片
      *
-     * @param image 图片bitmap
-     * @param size  限定长度
+     * @param originalBitmap 图片bitmap
+     * @param size           限定长度
      * @return 压缩后bitmap
      */
-    public static Bitmap compressBitmap(Bitmap image, float size) {
+    public static Bitmap compressBitmap(Bitmap originalBitmap, float size) {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        if (baos.toByteArray().length / 1024 > 1024) {
+        originalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        if (baos.toByteArray().length / 1024 > 1024) {//如果bitmap大于1M,则直接50压缩
             baos.reset();
-            image.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-            Logger.i("--------1");
+            originalBitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
         }
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
         BitmapFactory.Options newOpts = new BitmapFactory.Options();
@@ -404,7 +401,6 @@ public class ImageUtil {
         newOpts.inJustDecodeBounds = false;
         int outWidth = newOpts.outWidth;
         int outHeight = newOpts.outHeight;
-        Logger.i("---", "w:" + outWidth + ",h:" + outHeight);
         int be = 1;
         if (outWidth > outHeight && outWidth > size) {
             be = (int) (newOpts.outWidth / size);
@@ -414,31 +410,30 @@ public class ImageUtil {
         if (be <= 0)
             be = 1;
         newOpts.inSampleSize = be;
-        Logger.i("------", "sampleSize:" + be);
         bais = new ByteArrayInputStream(baos.toByteArray());
         bitmap = BitmapFactory.decodeStream(bais, null, newOpts);
-        return compressBiamapSample(bitmap);
+        return compressBitmapIn100k(bitmap);
     }
 
     /**
-     * 压缩图片至100k以内
+     * 压缩图片至100k以内(不改变尺寸)
      *
-     * @param image bitmap
+     * @param originalBitmap bitmap
      * @return bitmap
      */
-    public static Bitmap compressBiamapSample(Bitmap image) {
+    public static Bitmap compressBitmapIn100k(Bitmap originalBitmap) {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        originalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         int options = 100;
+        //循环采样直至小于100k
         while (baos.toByteArray().length / 1024 > 100) {
             baos.reset();//
-            image.compress(Bitmap.CompressFormat.JPEG, options, baos);
+            originalBitmap.compress(Bitmap.CompressFormat.JPEG, options, baos);
             options -= 10;
         }
         ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());
-        Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);
-        return bitmap;
+        return BitmapFactory.decodeStream(isBm, null, null);
     }
 
     /**
@@ -466,7 +461,7 @@ public class ImageUtil {
             be = 1;
         newOpts.inSampleSize = be;
         Bitmap bitmap = BitmapFactory.decodeFile(srcPath, newOpts);
-        return compressBiamapSample(bitmap);
+        return compressBitmapIn100k(bitmap);
     }
 
     /**
@@ -481,30 +476,16 @@ public class ImageUtil {
     }
 
     /**
-     * 放大图片
+     * 放大或缩小图片
      *
-     * @param bitmap
-     * @param big
-     * @return
+     * @param bitmap 原始图片
+     * @param times  倍数
+     * @return 缩放后的bitmap
      */
-    public static Bitmap big(Bitmap bitmap, float big) {
+    public static Bitmap scalePic(Bitmap bitmap, float times) {
         Matrix matrix = new Matrix();
-        matrix.postScale(big, big); // 长和宽放大缩小的比例
+        matrix.postScale(times, times); // 长和宽放大缩小的比例
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
-
-    /**
-     * 缩小图片
-     *
-     * @param bitmap
-     * @return
-     */
-    public static Bitmap small(Bitmap bitmap) {
-        Matrix matrix = new Matrix();
-        matrix.postScale(0.8f, 0.8f); // 长和宽放大缩小的比例
-        Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
-                bitmap.getHeight(), matrix, true);
-        return resizeBmp;
-    }
 }

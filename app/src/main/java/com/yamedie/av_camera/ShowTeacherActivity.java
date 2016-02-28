@@ -1,7 +1,10 @@
 package com.yamedie.av_camera;
 
+import android.annotation.TargetApi;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
@@ -11,9 +14,19 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.Volley;
 import com.linj.FileOperateUtil;
+import com.linj.imageloader.DisplayImageOptions;
+import com.linj.imageloader.DownloadImgUtils;
+import com.linj.imageloader.ImageLoader;
+import com.linj.imageloader.displayer.RoundedBitmapDisplayer;
 import com.squareup.picasso.Picasso;
 import com.yamedie.common.CommonDefine;
+import com.yamedie.loader.IMGLoader;
 import com.yamedie.utils.ImageUtil;
 import com.yamedie.utils.Logger;
 
@@ -29,6 +42,10 @@ public class ShowTeacherActivity extends BaseActivity {
     private TextView mTvName;
     private String mSavingPath;
     private String mSavingFileName;
+    private int thumbnailSize;//缩略图尺寸
+    private IMGLoader load;
+    private DisplayImageOptions mOptions;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +69,8 @@ public class ShowTeacherActivity extends BaseActivity {
         mSavingFileName = FileOperateUtil.createFileNmae(".jpg");
         mSavingPath = folder + File.separator + mSavingFileName;
         Logger.i("saving path:" + mSavingPath);
+        thumbnailSize = getResources().getDimensionPixelOffset(R.dimen.thumbnail_size);
+
     }
 
     private void initView() {
@@ -60,9 +79,42 @@ public class ShowTeacherActivity extends BaseActivity {
         mIvShowMyGirl = ((ImageView) findViewById(R.id.iv_my_girl));
         mTvName = ((TextView) findViewById(R.id.tv_name));
         mTvName.setText(mName + "-" + mSimilarity + getString(R.string.similarity_post));
-        Picasso.with(this).load(mImgUrl).into(mIvShowTeacher);
-        Bitmap myGirlBitmap = BitmapFactory.decodeFile(mImgPath);
-        mIvShowMyGirl.setImageBitmap(myGirlBitmap);
+        Bitmap myGirlThumbnail = ImageUtil.getImageThumbnail(mImgPath, thumbnailSize, thumbnailSize);//获取被拍摄女孩的缩略图
+        mIvShowMyGirl.setImageBitmap(myGirlThumbnail);
+//        mImgUrl = CommonDefine.URL_IMAGE_LOAD_TEST;
+        Picasso.with(this).load(mImgUrl).placeholder(R.drawable.splash).error(R.drawable.ic_error).into(mIvShowTeacher);
+//        loadImageByVoley();
+    }
+
+    private void loadImageByVoley() {
+        RequestQueue mQueue = Volley.newRequestQueue(ShowTeacherActivity.this);
+        ImageRequest imageRequest = new ImageRequest(mImgUrl, new Response.Listener<Bitmap>() {
+            @Override
+            public void onResponse(Bitmap bitmap) {
+                mIvShowTeacher.setImageBitmap(bitmap);
+            }
+        }, 0, 0, Bitmap.Config.RGB_565, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                toastGo("aaaaaaaaa");
+            }
+        });
+        mQueue.add(imageRequest);
+    }
+
+    private void loadImageByLinjUtil() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final Bitmap bitmap = DownloadImgUtils.downloadImgByUrl(mImgUrl);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mIvShowTeacher.setImageBitmap(bitmap);
+                    }
+                });
+            }
+        }).start();
     }
 
 
@@ -121,8 +173,8 @@ public class ShowTeacherActivity extends BaseActivity {
                 }
                 break;
             case 2:
-                Bitmap bitmap = ImageUtil.viewToBitmap(mIvShowTeacher);
-                bitmap = ImageUtil.composeBitmapWithView(bitmap, mTvName);
+                Bitmap bitmap = ImageUtil.getBitmapFromView(mIvShowTeacher);//获取老师的bitmap(显示尺寸,而不是原图尺寸,毕竟原图大小不确定)
+                bitmap = ImageUtil.compositeBitmapWithView(bitmap, mTvName);//进行合成
                 boolean isSavingOk = ImageUtil.savePic(ShowTeacherActivity.this, bitmap, mSavingPath, mSavingFileName);
                 if (isSavingOk) {
                     toastGo("保存图片成功!");
