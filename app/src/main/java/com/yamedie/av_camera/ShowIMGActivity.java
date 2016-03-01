@@ -48,7 +48,7 @@ import java.util.List;
 import com.yamedie.common.CommonDefine;
 import com.yamedie.utils.CommonUtils;
 import com.yamedie.utils.FileUtil;
-import com.yamedie.utils.Httphandler;
+import com.yamedie.utils.HttpHandlerDC;
 import com.yamedie.utils.ImageUtil;
 import com.yamedie.utils.Logger;
 
@@ -329,7 +329,7 @@ public class ShowIMGActivity extends BaseActivity {
             e.printStackTrace();
         }
 //        params.put("name", "hahahahaha");
-        Httphandler.postImg(params, CommonDefine.URL_UPLOAD_2, new JsonHttpResponseHandler() {
+        HttpHandlerDC.postImg(params, CommonDefine.URL_UPLOAD_2, new JsonHttpResponseHandler() {
             @Override
             public void onFinish() {
                 super.onFinish();

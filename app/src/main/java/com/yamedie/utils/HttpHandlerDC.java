@@ -20,7 +20,7 @@ import java.security.cert.CertificateException;
  * Created by Li Dachang on 16/1/26.
  * ..-..---.-.--..---.-...-..-....-.
  */
-public class Httphandler {
+public class HttpHandlerDC {
     /**
      * 上传图片并获取URl地址
      *
