@@ -7,12 +7,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import com.linj.imageloader.ImageUtil.ImageSize;
+import com.linj.utils.Logger;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -145,6 +148,7 @@ public class DownloadImgUtils {
             }
             is.mark(connInt + 10);
             Log.i("-----", "--is.available:" + connInt);
+            Log.i("-----", "--is.getResponseCode:" + conn.getResponseCode());
             Options opts = new Options();
             opts.inJustDecodeBounds = true;
             Bitmap bitmap = BitmapFactory.decodeStream(is, null, opts);

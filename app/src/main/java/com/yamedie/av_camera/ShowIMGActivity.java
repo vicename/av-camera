@@ -30,7 +30,6 @@ import com.facepp.error.FaceppParseException;
 import com.facepp.http.HttpRequests;
 import com.facepp.http.PostParameters;
 import com.linj.FileOperateUtil;
-import com.linj.imageloader.DownloadImgUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -43,6 +42,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.yamedie.common.CommonDefine;
@@ -75,6 +75,9 @@ public class ShowIMGActivity extends BaseActivity {
     private ImageView mIvGoPhotoLibrary;
     private AlertDialog mConnectingDialog;
     private boolean mFlagIsConnecting;
+    private String mAction;
+    private final String ACTION_TAKE_PHOTO = CommonDefine.ACTION_TAKE_PHOTO_TO_SHOW_IMG;
+    private final String ACTION_CHOOSE_PIC = CommonDefine.ACTION_CHOOSE_PIC_TO_SHOW_IMG;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +102,7 @@ public class ShowIMGActivity extends BaseActivity {
             if (mPhotoPath != null) {
                 mBitmap = BitmapFactory.decodeFile(mPhotoPath);//获取图片为bitmap
             }
+            mAction = getIntent().getAction();
         }
         if (!TextUtils.isEmpty(mPhotoPath)) {
             Logger.i("---", mPhotoPath);
@@ -166,7 +170,6 @@ public class ShowIMGActivity extends BaseActivity {
                     mBitmap = ImageUtil.compressBitmap(mBitmap, 720);
                     mIvShowPhoto.setImageBitmap(mBitmap);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        Logger.i("-------------------------");
                         mPhotoPath = FileUtil.getPathFromUri(getApplication(), originalUri);
                     } else {
                         //显得到bitmap图片这里开始的第二部分，获取图片的路径：
@@ -184,6 +187,7 @@ public class ShowIMGActivity extends BaseActivity {
                         cursor.close();
                     }
                     Logger.i("-----", "选取图片path:" + mPhotoPath);
+                    mAction = ACTION_CHOOSE_PIC;
                     tvName.setVisibility(View.INVISIBLE);
                     tvSimilar.setVisibility(View.INVISIBLE);
                 }
@@ -236,6 +240,7 @@ public class ShowIMGActivity extends BaseActivity {
 
         @Override
         public void onClick(View v) {
+            mobClickAgentGo(CommonDefine.UM_SHOW_IMG_CHOOSE_PIC);
             choosePic();
         }
     }
@@ -246,10 +251,23 @@ public class ShowIMGActivity extends BaseActivity {
         public void onClick(View v) {
             createConnectingDialog();
             CommonUtils.disableViewForSeconds(v, 666);
-//            upLoadImg();
-            upLoadAndCheckFace();
-//            setAVPic("http://203.100.82.13/大槻响/9.jpg");
-//            Picasso.with(getApplicationContext()).load("http://203.100.82.13/大槻响/9.jpg").into(mIvShowPhoto);
+            mobClickAgentGo(CommonDefine.UM_FIND_TEACHER_ON_CHOOSE_PIC);
+            //获取当前时间戳,用于统计找老师用时
+            Date date = new Date();
+            long longAgo = date.getTime();
+            Logger.i(1);
+            //根据不同的action打不同的点
+            if (!TextUtils.isEmpty(mAction)) {
+                if (mAction.equals(ACTION_TAKE_PHOTO)) {
+                    mobClickAgentGo(CommonDefine.UM_FIND_TEACHER_ON_TAKE_PHOTO);
+                } else {
+                    mobClickAgentGo(CommonDefine.UM_FIND_TEACHER_ON_CHOOSE_PIC);
+                }
+            } else {
+                Logger.e("check face:got no action!!---dc");
+            }
+            Logger.i(2);
+            upLoadAndCheckFace(longAgo);
         }
     }
 
@@ -265,12 +283,7 @@ public class ShowIMGActivity extends BaseActivity {
                     FaceDetecter.Face[] faces = detecter.findFaces(mBitmap);
 //                    Logger.i("---","faces size",faces.length);
                     if (faces == null) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                toastGo("没有人脸");
-                            }
-                        });
+                        toastGo("没有人脸");
                         return;
                     }
                     try {
@@ -292,27 +305,30 @@ public class ShowIMGActivity extends BaseActivity {
         }
     }
 
-    private void upLoadAndCheckFace() {
+    /**
+     * 上传图片并寻找相似人脸
+     *
+     * @param longAgo 当前时间戳,用于统计耗时
+     */
+    private void upLoadAndCheckFace(final long longAgo) {
         RequestParams params = new RequestParams();
-        Logger.i(1, "bitmap height:" + mBitmap.getHeight());
         Bitmap bitmap = mBitmap;
         if (mBitmap.getHeight() >= 1000) {
             bitmap = ImageUtil.scalePicByMaxSide(mBitmap, 960);
         }
-        Logger.i(1, "bitmap length:" + bitmap.getByteCount());
-        Logger.i(1, "bitmap height:" + bitmap.getHeight());
+        Logger.i(1, "上传的图片宽高:" + bitmap.getWidth() + "_" + bitmap.getHeight());
         byte[] bytes = FileUtil.Bitmap2Bytes(bitmap);
+        Logger.i(1, "上传的图片大小:" + bytes.length);
         String tempPath = FileOperateUtil.getTempFolderPath(ShowIMGActivity.this, "av-camera");
         tempPath = CommonDefine.PIC_TEMP_PATH + "temp.jpg";
-        Logger.i(1, "---temp path:" + tempPath);
+        Logger.i(1, "temp path:", tempPath);
         File file = FileUtil.bytes2File(tempPath, bytes);
         try {
             params.put("pic", file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        params.put("name", "hahahahaha");
-
+//        params.put("name", "hahahahaha");
         Httphandler.postImg(params, CommonDefine.URL_UPLOAD_2, new JsonHttpResponseHandler() {
             @Override
             public void onFinish() {
@@ -322,9 +338,7 @@ public class ShowIMGActivity extends BaseActivity {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                super.onSuccess(statusCode, headers, response);
-                Logger.i(1, "upload status:" + statusCode);
-                Logger.i(1, "respons" + response.toString());
+                Logger.i(1, "response" + response.toString());
                 if (!mFlagIsConnecting) {
                     return;
                 }
@@ -335,15 +349,12 @@ public class ShowIMGActivity extends BaseActivity {
                         Logger.i(1, "status:" + status);
                         switch (status) {
                             case 0:
-                                info = response.getString("info");
                                 JSONArray girls = response.getJSONArray("av_girls");
                                 JSONObject girlJb = girls.getJSONObject(0);
                                 String url = girlJb.getString("url");
                                 String name = girlJb.getString("name");
-                                String similarity = girlJb.getString("similarity");
-                                double similar = girlJb.getDouble("similarity");
-                                Logger.i(1, "url:" + url + "--name:" + name + "--similarity:" + similarity);
-                                goShowTeacher(url, name, similar);
+                                float similar = (float) girlJb.getDouble("similarity");
+                                goShowTeacher(url, name, similar, longAgo);
                                 break;
                             case -1:
                                 toastGo("呃,发生了未知错误...");
@@ -381,218 +392,37 @@ public class ShowIMGActivity extends BaseActivity {
             }
 
             @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                toastGo("网络连接错误,请检查一下网络哈");
+                Logger.e("网络请求失败-1");
+            }
+
+            @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
-                toastGo("上传失败!");
+                toastGo("网络连接错误,请检-查一下网络哈");
+                Logger.e("网络请求失败-2");
                 mConnectingDialog.dismiss();
             }
         });
 
     }
 
-    /**
-     * 上传图片至face++并进行人脸识别,使用了Face++的sdk
-     */
-    public void upLoadImg() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HttpRequests requests = new HttpRequests(CommonDefine.API_KEY_VALUE, CommonDefine.API_SECRET_VALUE, true, true);
-                PostParameters parameters = new PostParameters();
-                requests.getWebSite();
-                mBitmap = ImageUtil.compressBitmap(mBitmap, 400);
-                parameters.setImg(FileUtil.Bitmap2Bytes(mBitmap));
-                JSONObject jObj = null;
-                try {
-                    jObj = requests.detectionDetect(parameters);
-                    JSONArray jArr = jObj.getJSONArray("face");
-                    if (jArr.length() == 0) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                toastGo("没有识别出来你的脸,重新拍一张吧");
-                            }
-                        });
-                        Logger.i("没有脸");
-                        return;
-                    }
-                    JSONObject faceObj = jArr.getJSONObject(0);
-                    final String id = faceObj.optString("face_id", "-1");
-                    Logger.i("-----成功");
-                    Logger.i("---", "face id", id);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            searchFace(id);
-                        }
-                    });
-                } catch (FaceppParseException | JSONException e) {
-                    e.printStackTrace();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            toastGo("上传图片失败,请检查网络或重新拍一张");
-                        }
-                    });
-                    Logger.i("------失败");
-                }
-            }
-        }).start();
-    }
-
-    /**
-     * 查询与之最相似的人脸,此方法限制为选取最相似的一张,默认可选三张
-     *
-     * @param faceId 被比对的人脸
-     */
-    private void searchFace(String faceId) {
-        RequestParams params = new RequestParams();
-        params.put(CommonDefine.API_KEY, CommonDefine.API_KEY_VALUE);
-        params.put(CommonDefine.API_SECRET, CommonDefine.API_SECRET_VALUE);
-        params.put("key_face_id", faceId);
-        params.put(CommonDefine.FACE_SET_NAME, CommonDefine.FACE_SET_NAME_VALUE);
-        params.put("count", 1);
-        Logger.url("searchFace", CommonDefine.FACE_PP_URL + CommonDefine.URL_SEARCH_FACE, params);
-        Httphandler.normalAsyncGet(ShowIMGActivity.this, params, CommonDefine.FACE_PP_URL + CommonDefine.URL_SEARCH_FACE, new JsonHttpResponseHandler() {
-            @Override
-            public void onFinish() {
-                super.onFinish();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                super.onFailure(statusCode, headers, responseString, throwable);
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                super.onSuccess(statusCode, headers, response);
-                Logger.i("---", "search face code", statusCode);
-                if (statusCode == 200) {
-                    try {
-                        JSONArray candidateJay = response.getJSONArray("candidate");
-                        JSONObject faceInfoJB = candidateJay.getJSONObject(0);
-                        String faceId = faceInfoJB.optString("face_id", null);
-                        double similarity = faceInfoJB.optDouble("similarity");
-                        getSimilarFace(faceId, similarity);
-                        Logger.i("---获取相似人脸成功!");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-    }
-
-    /**
-     * 根据相似人脸的id获取其相关信息,如姓名 照片等
-     * 同时给详情类赋值
-     *
-     * @param faceId     人脸id
-     * @param similarity 相似度
-     */
-    private void getSimilarFace(String faceId, final double similarity) {
-        RequestParams params = new RequestParams();
-        params.put(CommonDefine.API_KEY, CommonDefine.API_KEY_VALUE);
-        params.put(CommonDefine.API_SECRET, CommonDefine.API_SECRET_VALUE);
-        params.put("face_id", faceId);
-        String url = CommonDefine.FACE_PP_URL + CommonDefine.URL_GET_FACE;
-        Logger.url("get face", url, params);
-        Httphandler.normalAsyncGet(ShowIMGActivity.this, params, url, new JsonHttpResponseHandler() {
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                super.onSuccess(statusCode, headers, response);
-                Logger.i("---", "get face status code", statusCode);
-                try {
-                    JSONArray faceInfoArray = response.getJSONArray("face_info");
-                    JSONObject faceInfoObj = faceInfoArray.getJSONObject(0);
-                    String imgUrl = faceInfoObj.optString("url", null);
-                    JSONArray personArray = faceInfoObj.getJSONArray("person");
-                    JSONObject personObj = personArray.getJSONObject(0);
-                    String name = personObj.optString("person_name", "");
-//                    setAVPic(imgUrl);
-//                    setInfo(name, similarity, imgUrl);
-                    goShowTeacher(imgUrl, name, similarity);
-                    Logger.i("---", name, imgUrl);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    /**
-     * 设置显示图片
-     *
-     * @param imgUrl 图片url
-     */
-    private void setAVPic(final String imgUrl) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //从url获取图片
-//                final Bitmap bitmap = LoadImage.getBitmapFromUrl(imgUrl);
-                final Bitmap bitmap = DownloadImgUtils.downloadImgByUrl(imgUrl, mIvShowPhoto);
-//                Picasso.with(getApplicationContext()).load(imgUrl).into(mIvShowPhoto);
-                if (bitmap == null) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            toastGo("图片加载失败了....");
-                        }
-                    });
-                } else {
-                    Logger.i("----图片加载---");
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mIvShowPhoto.setImageBitmap(bitmap);
-                        }
-                    });
-                }
-            }
-        }).start();
-    }
-
-    private void goShowTeacher(String imgUrl, String name, double similarity) {
+    private void goShowTeacher(String imgUrl, String name, float similarity, long longAgo) {
         Intent intent = new Intent();
         intent.setClass(ShowIMGActivity.this, ShowTeacherActivity.class);
         intent.putExtra(CommonDefine.TAG_IMAGE_PATH, mPhotoPath);
         intent.putExtra(CommonDefine.TAG_IMAGE_URL, imgUrl);
         intent.putExtra(CommonDefine.TAG_TEACHER_NAME, name);
         intent.putExtra(CommonDefine.TAG_SIMILAR, String.valueOf(similarity));
+        intent.putExtra(CommonDefine.TAG_TIME, longAgo);
         startActivity(intent);
-    }
-
-    private void setInfo(final String name, double similarity, final String imgUrl) {
-        tvName.setVisibility(View.VISIBLE);
-        tvName.setText(name);
-        tvName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                Intent intent = new Intent(ShowIMGActivity.this, GirlInfoActivity.class);
-//                intent.putExtra("girl_name", name);
-//                intent.putExtra("url", imgUrl);
-//                startActivity(intent);
-                jumpBrowser(name);
-
-            }
-        });
-        tvSimilar.setVisibility(View.VISIBLE);
-        tvSimilar.setText(similarity + "%相似度!");
-
     }
 
     /**
      * 创建连接对话框
      */
     private void createConnectingDialog() {
-        mFlagIsConnecting=true;
+        mFlagIsConnecting = true;
         final View connectingDialogView = View.inflate(ShowIMGActivity.this, R.layout.dialog_connecting, null);
         android.app.AlertDialog.Builder ab = new android.app.AlertDialog.Builder(ShowIMGActivity.this);
         ab.setView(connectingDialogView);
@@ -602,7 +432,7 @@ public class ShowIMGActivity extends BaseActivity {
             public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_BACK) {
                     mConnectingDialog.dismiss();
-                    mFlagIsConnecting=false;
+                    mFlagIsConnecting = false;
                     return true;
                 }
                 return false;

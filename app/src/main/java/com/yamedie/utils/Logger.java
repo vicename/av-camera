@@ -26,9 +26,13 @@ public class Logger {
     }
 
     public static void i(String flag, String msg) {
-        if (CommonDefine.is_debug) {
+        if (CommonDefine.IS_DEBUG) {
             Log.i(flag, msg);
         }
+    }
+
+    public static void i(int i) {
+        i("---", "-----------" + i);
     }
 
     public static void i(String flag, String msgKey, Object msgValue) {
@@ -48,6 +52,31 @@ public class Logger {
     public static void i(int tag, String msgKey, Object msgValue) {
         if (tag == 1) {
             i(DC_TAG_1, DC_TAG_1 + " " + msgKey + " : " + String.valueOf(msgValue) + " --");
+        }
+    }
+
+    public static void i(int tag, String key1, Object value1, String key2, Object value2) {
+        if (tag == 1) {
+            i(DC_TAG_1, key1 + ":" + String.valueOf(value1) + " -- " + key2 +":"+ String.valueOf(value2));
+        }
+    }
+
+    public static void i(int tag, String key1, Object value1, String key2, Object value2, String key3, Object value3) {
+        if (tag == 1) {
+            i(DC_TAG_1, key1 + ":" + String.valueOf(value1) + " -- " + key2 + ":" + String.valueOf(value2) + " -- " + key3 + ":" + String.valueOf(value3));
+        }
+    }
+
+
+    public static void w(Object msg) {
+        if (CommonDefine.IS_DEBUG) {
+            Log.w("---", String.valueOf(msg));
+        }
+    }
+
+    public static void e(Object msg) {
+        if (CommonDefine.IS_DEBUG) {
+            Log.e("---", String.valueOf(msg));
         }
     }
 

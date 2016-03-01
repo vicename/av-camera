@@ -134,6 +134,7 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
             //获取到图片路径后即跳转到展示图片页面
             if (!TextUtils.isEmpty(path)) {
                 Intent intent = new Intent(getApplication(), ShowIMGActivity.class);
+                intent.setAction(CommonDefine.ACTION_CHOOSE_PIC_TO_SHOW_IMG);
                 intent.putExtra(CommonDefine.TAG_IMAGE_PATH, path);
                 startActivity(intent);
             } else {
@@ -197,8 +198,10 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
             case R.id.btn_shutter_camera:
                 mCameraShutterButton.setClickable(false);
                 mContainer.takePicture(this);
+                mobClickAgentGo(CommonDefine.UM_TAKE_PHOTO_TAKE_PHOTO);
                 break;
             case R.id.iv_pic_library:
+                mobClickAgentGo(CommonDefine.UM_TAKE_PHOTO_CHOOSE_PIC);
                 choosePic();
                 break;
             case R.id.btn_thumbnail:
@@ -306,13 +309,10 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
         if (mImagePath != null) {
             Intent intent = new Intent();
             intent.putExtra(CommonDefine.TAG_IMAGE_PATH, mImagePath);
-//            setResult(RESULT_OK, intent);
-//            finish();
+            intent.setAction(CommonDefine.ACTION_TAKE_PHOTO_TO_SHOW_IMG);
             intent.setClass(TakePhotoActivity.this, ShowIMGActivity.class);
             startActivity(intent);
-//            finish();
         }
-//        backToLast();
     }
 
     @Override

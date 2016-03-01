@@ -7,8 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
+import com.yamedie.common.CommonDefine;
+import com.yamedie.utils.CommonUtils;
 import com.yamedie.utils.Logger;
 
+import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
@@ -55,8 +58,34 @@ public class BaseActivity extends AppCompatActivity {
         }).start();
     }
 
+    /**
+     * 友盟打点-计数事件
+     *
+     * @param tag 标识
+     */
+    public void mobClickAgentGo(String tag) {
+//        if (!CommonDefine.IS_DEBUG)
+        MobclickAgent.onEvent(mContext, tag);
+//        MobclickAgent.onEventValue(mContext, tag, null, 1);
+    }
+
+    public void mobClickAgentGo(String tag, Map<String, String> map) {
+//        if (!CommonDefine.IS_DEBUG)
+//        MobclickAgent.onEvent(mContext, tag, map);
+        MobclickAgent.onEventValue(mContext, tag, map, 1);
+    }
+
     public void toastGo(final String s) {
-        Toast.makeText(BaseActivity.this, s, Toast.LENGTH_SHORT).show();
+        if (!CommonUtils.isInMainThread()) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(BaseActivity.this, s, Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            Toast.makeText(BaseActivity.this, s, Toast.LENGTH_SHORT).show();
+        }
     }
 
     protected Future submitTask(Runnable task) {

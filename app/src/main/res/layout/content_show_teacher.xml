@@ -16,8 +16,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -44,6 +44,18 @@
                     android:elevation="4dp"
                     android:padding="2dp"
                     android:scaleType="centerCrop" />
+
+                <TextView
+                    android:id="@+id/tv_name_to_composed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/iv_teacher"
+                    android:background="@color/background_trans_half"
+                    android:paddingLeft="16dp"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:visibility="invisible" />
             </RelativeLayout>
 
             <TextView
