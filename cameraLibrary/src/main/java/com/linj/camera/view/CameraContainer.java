@@ -334,6 +334,7 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
             mTempImageView.setListener(mListener);
             mTempImageView.isVideo(false);
             mTempImageView.setImageBitmap(bm);
+            mTempImageView.setBackgroundColor(0xffffff);
             mTempImageView.startAnimation(R.anim.tempview_show);
             //重新打开预览图，进行下一次的拍照准备
             camera.startPreview();

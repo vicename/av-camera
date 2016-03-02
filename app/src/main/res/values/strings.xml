@@ -8,4 +8,9 @@
     <string name="similarity_post">%相似度!</string>
     <string name="pic_saved_success">图片保存成功!</string>
     <string name="pic_saved_failed">图片保存失败!</string>
+    <string name="title_activity_share_find_teacher">找老师</string>
+    <string name="menu_feedback">反馈</string>
+
+    <string name="save_teacher">保存老师</string>
+    <string name="save_composed">两人一起保存</string>
 </resources>

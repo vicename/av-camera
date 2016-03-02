@@ -40,7 +40,7 @@ public class ViewPagerAdapter extends PagerAdapter {
      */
     @Override
     public int getCount() {
-        return 5;
+        return 3;
     }
 
     /**
@@ -82,12 +82,6 @@ public class ViewPagerAdapter extends PagerAdapter {
                     temp = mInflater.inflate(R.layout.content_guid_pager2, null);
                     break;
                 case 2:
-                    temp = mInflater.inflate(R.layout.content_guid_pager4, null);
-                    break;
-                case 3:
-                    temp = mInflater.inflate(R.layout.content_guid_pager5, null);
-                    break;
-                case 4:
                     temp = mInflater.inflate(R.layout.content_guid_pager6, null);
                     Button guideGo = (Button) temp.findViewById(R.id.btn_go);
                     guideGo.setOnClickListener(new View.OnClickListener() {

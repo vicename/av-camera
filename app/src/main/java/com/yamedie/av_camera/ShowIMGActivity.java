@@ -240,7 +240,6 @@ public class ShowIMGActivity extends BaseActivity {
                 @Override
                 public void run() {
                     FaceDetecter.Face[] faces = detecter.findFaces(mBitmap);
-//                    Logger.i("---","faces size",faces.length);
                     if (faces == null) {
                         toastGo("没有人脸");
                         return;

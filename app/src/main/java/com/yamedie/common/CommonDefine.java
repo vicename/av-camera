@@ -74,4 +74,6 @@ public class CommonDefine {
     public static final String UM_CLICK_SAVE_TEACHER = "click_save_teacher";
     //保存老师合成图片
     public static final String UM_CLICK_SAVE_TEACHER_COMPOSED = "click_save_teacher_composed";
+    //通过分享到本应用找老师
+    public static final String UM_FIND_TEACHER_ON_SHARE = "find_teacher_on_share";
 }
