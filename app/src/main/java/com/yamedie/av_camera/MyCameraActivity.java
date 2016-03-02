@@ -227,7 +227,7 @@ public class MyCameraActivity extends BaseActivity implements CameraContainer.Ta
     }
 
     @Override
-    public void onAnimtionEnd(Bitmap bm, boolean isVideo) {
+    public void onAnimationEnd(Bitmap bm, boolean isVideo) {
 
     }
 

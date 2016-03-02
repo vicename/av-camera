@@ -19,6 +19,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Li Dachang on 16/1/25.
@@ -75,12 +79,12 @@ public class FileUtil {
     /**
      * bitmap to bytes
      *
-     * @param bm
-     * @return
+     * @param bitmap bitmap
+     * @return 数组
      */
-    public static byte[] Bitmap2Bytes(Bitmap bm) {
+    public static byte[] Bitmap2Bytes(Bitmap bitmap) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG, 70, baos);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos);
         return baos.toByteArray();
     }
 
@@ -113,7 +117,8 @@ public class FileUtil {
 
     /**
      * 通过二进制数组转为保存为文件
-     * @param path 存储路径
+     *
+     * @param path  存储路径
      * @param bytes 二进制数组
      * @return 文件
      */
@@ -136,6 +141,24 @@ public class FileUtil {
             return null;
         }
         return file;
+    }
+
+    /**
+     * 创建文件名字
+     *
+     * @param preName   名字前缀
+     * @param extension 后缀名
+     * @return 完整文件名字
+     */
+    public static String createFileName(String preName, String extension) {
+        DateFormat format = new SimpleDateFormat("yyMMddHHmmss", Locale.getDefault());
+        // 转换为字符串
+        String formatDate = format.format(new Date());
+        formatDate += preName + "-";
+        //查看是否带"."
+        if (!extension.startsWith("."))
+            extension = "." + extension;
+        return formatDate + extension;
     }
 
     /**

@@ -31,37 +31,4 @@
         android:scaleType="centerCrop"
         android:visibility="invisible" />
 
-    <Button
-        android:id="@+id/btn_all_pics"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="16dp"
-        android:text="遍历图片"
-        android:visibility="invisible" />
-
-    <TextView
-        android:id="@+id/tv_name"
-        android:layout_width="wrap_content"
-        android:layout_height="28dp"
-        android:layout_alignParentRight="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="16dp"
-        android:text="大桥未久"
-        android:textColor="@color/colorPrimary"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:visibility="invisible" />
-
-    <TextView
-        android:id="@+id/tv_similar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/tv_name"
-        android:layout_marginRight="16dp"
-        android:textColor="@color/text_display_57p" />
-
-
 </RelativeLayout>

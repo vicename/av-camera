@@ -68,7 +68,7 @@ public class TempImageView extends ImageView implements AnimationListener{
 		if(drawable!=null&&drawable instanceof BitmapDrawable)
 			bm=((BitmapDrawable)drawable).getBitmap();
 		//相机监听接口不为空，则执行拍照结束操作
-		if (mListener!=null) mListener.onAnimtionEnd(bm,mIsVideo);
+		if (mListener!=null) mListener.onAnimationEnd(bm, mIsVideo);
 	}
 
 	@Override

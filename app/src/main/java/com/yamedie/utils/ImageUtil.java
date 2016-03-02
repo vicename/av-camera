@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 
 import android.annotation.SuppressLint;
 import android.graphics.BitmapFactory;
@@ -227,14 +228,13 @@ public class ImageUtil {
             }
         }
         try {
-            file.createNewFile();
             FileOutputStream fos = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fos);
             fos.write(bitmap2Byte(bitmap));
             fos.flush();
             fos.close();
             //把文件插入到系统图库
-            MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), imageName, null);
+//            MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), imageName, null);
             //通知系统图库更新
             context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + path)));
             isOk = true;
@@ -380,7 +380,7 @@ public class ImageUtil {
     }
 
     /**
-     * 限定长边长度对半压缩图片
+     * 限定长边长度压缩图片
      *
      * @param originalBitmap 图片bitmap
      * @param size           限定长度
@@ -425,15 +425,38 @@ public class ImageUtil {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         originalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        int options = 100;
+        int optionsQuality = 100;
         //循环采样直至小于100k
         while (baos.toByteArray().length / 1024 > 100) {
             baos.reset();//
-            originalBitmap.compress(Bitmap.CompressFormat.JPEG, options, baos);
-            options -= 10;
+            originalBitmap.compress(Bitmap.CompressFormat.JPEG, optionsQuality, baos);
+            optionsQuality -= 10;
         }
         ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());
         return BitmapFactory.decodeStream(isBm, null, null);
+    }
+
+    public static byte[] compressBitmapInOrderSize(Bitmap bitmap, int size) {
+        long time1 = CommonUtils.timeSpendCheck();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        //如果大于1M,直接50度二次采样
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        Logger.i("imageUtils 压缩准备,压缩前大小:" + baos.toByteArray().length + ",bitmap 大小:" + bitmap.getByteCount());
+        if (baos.toByteArray().length / 1024 > 1024) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+        }
+        int quality = 90;
+        Logger.i("imageUtils 单次采样:" + baos.toByteArray().length);
+        //循环采样
+        while (baos.toByteArray().length / 1024 > size) {
+            baos.reset();//
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, baos);
+            Logger.i("imageUtils循环采样中:" + baos.toByteArray().length);
+            quality -= 10;
+        }
+        Logger.i("imageUtils采样完毕:" + baos.toByteArray().length);
+        Logger.i("imageUtils 压缩耗时:" + CommonUtils.timeSpendCheck(time1));
+        return baos.toByteArray();
     }
 
     /**

@@ -94,7 +94,7 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_OK) {
-            Logger.i("---", "ActivityResult resultCode error2");
+            Logger.e("ActivityResult resultCode error2");
             return;
         }
         ContentResolver resolver = getContentResolver();
@@ -125,11 +125,11 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
                     //将光标移至开头 ，这个很重要，不小心很容易引起越界
                     //最后根据索引值获取图片路径
                     path = cursor.getString(column_index);
-                    Logger.i(1, "cusor index:" + column_index);
-                    Logger.i(1, "cusor get String:" + cursor.getString(0));
+                    Logger.i(1, "cursor index:" + column_index);
+                    Logger.i(1, "cursor get String:" + cursor.getString(0));
                     cursor.close();
                 }
-                Logger.i("-----", "选取图片path:" + path);
+                Logger.i("选取图片path:" + path);
             }
             //获取到图片路径后即跳转到展示图片页面
             if (!TextUtils.isEmpty(path)) {
@@ -140,6 +140,7 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
             } else {
                 toastGo("选取图片失败!");
             }
+            mobClickAgentGo(CommonDefine.UM_TAKE_PHOTO_CHOOSE_PIC);
         }
     }
 
@@ -201,7 +202,6 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
                 mobClickAgentGo(CommonDefine.UM_TAKE_PHOTO_TAKE_PHOTO);
                 break;
             case R.id.iv_pic_library:
-                mobClickAgentGo(CommonDefine.UM_TAKE_PHOTO_CHOOSE_PIC);
                 choosePic();
                 break;
             case R.id.btn_thumbnail:
@@ -285,11 +285,10 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
     @Override
     public void onTakePictureEnd(Bitmap bm) {
         mCameraShutterButton.setClickable(true);
-        Bitmap mBitmap = bm;
     }
 
     @Override
-    public void onAnimtionEnd(Bitmap bm, boolean isVideo) {
+    public void onAnimationEnd(Bitmap bm, boolean isVideo) {
         if (bm != null) {
             //生成缩略图
             Bitmap thumbnail = ThumbnailUtils.extractThumbnail(bm, 213, 213);

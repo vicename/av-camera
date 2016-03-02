@@ -44,11 +44,15 @@ public class ShowTeacherActivity extends BaseActivity {
     private TextView mTvName;
     private TextView mTvNameToComposed;
     private String mSavingPath;
-    private String mSavingFileName;
+    private String mTeacherFileName;
     private int thumbnailSize;//缩略图尺寸
     private IMGLoader load;
     private DisplayImageOptions mOptions;
-    private Target mTarget;
+    private Target mTarget;//picasso图片加载回调
+    private final String TEACHER = "teacher";
+    private final String TEACHER_COMPOSED = "teacher-comp";
+    private String mTeacherComposedFileName;//合成图片文件名
+    private String mSavingCompPath;//合成图片保存路径
 
 
     @Override
@@ -79,13 +83,18 @@ public class ShowTeacherActivity extends BaseActivity {
         mImgUrl = getIntent().getStringExtra(CommonDefine.TAG_IMAGE_URL);
         mImgUrl = CommonUtils.encodeUrl(mImgUrl);//转义带中文的url
         mName = getIntent().getStringExtra(CommonDefine.TAG_TEACHER_NAME);
+        if (mName.contains("\n")) {//去除名字中的换行符
+            Logger.w("名字中存在换行");
+            mName=mName.replace("\n", "");
+        }
         mSimilarity = getIntent().getStringExtra(CommonDefine.TAG_SIMILAR);
         mImgPath = getIntent().getStringExtra(CommonDefine.TAG_IMAGE_PATH);
         mTimeWhenUpload = getIntent().getLongExtra(CommonDefine.TAG_TIME, 0);
-        String folder = FileOperateUtil.getFolderPath(ShowTeacherActivity.this, FileOperateUtil.TYPE_IMAGE, "test");
-        mSavingFileName = FileOperateUtil.createFileNmae(".jpg");
-        mSavingPath = folder + File.separator + mSavingFileName;
-        Logger.i("saving path:" + mSavingPath);
+        String folder = FileOperateUtil.getFolderPathDC(TEACHER);
+        mTeacherFileName = FileOperateUtil.createFileName(mName, ".jpg");
+        mTeacherComposedFileName = FileOperateUtil.createFileName(mName + "comp", ".jpg");
+        mSavingPath = folder + mTeacherFileName;
+        mSavingCompPath = folder + mTeacherComposedFileName;
         Logger.i(1, "url", mImgUrl, "name:", mName, "similarity", mSimilarity);
         thumbnailSize = getResources().getDimensionPixelOffset(R.dimen.thumbnail_size);
 
@@ -97,20 +106,20 @@ public class ShowTeacherActivity extends BaseActivity {
         mIvShowMyGirl = ((ImageView) findViewById(R.id.iv_my_girl));
         mTvName = ((TextView) findViewById(R.id.tv_name));
         mTvNameToComposed = (TextView) findViewById(R.id.tv_name_to_composed);
-        String baseInfo = mName + "-" + mSimilarity + getString(R.string.similarity_post);
+        String baseInfo = mName + " - " + mSimilarity + getString(R.string.similarity_post);
         mTvName.setText(baseInfo);
         mTvNameToComposed.setText(baseInfo);
         Bitmap myGirlThumbnail = ImageUtil.getImageThumbnail(mImgPath, thumbnailSize, thumbnailSize);//获取被拍摄女孩的缩略图
         mIvShowMyGirl.setImageBitmap(myGirlThumbnail);
         //mImgUrl = CommonDefine.URL_IMAGE_LOAD_TEST;
         //Picasso.with(this).load(mImgUrl).placeholder(R.drawable.abc_dialog_material_background_light).error(R.drawable.ic_error).into(mIvShowTeacher);
-        //loadImageByVoley();
+        //loadImageByVolley();
         //loadImageByLinjUtil("http://203.100.82.13/冬月枫/a53febe2gc7e4cd6e43d6&690.jpg");
         initPicassoTarget();
         Picasso.with(this).load(mImgUrl).into(mTarget);
     }
 
-    private void loadImageByVoley() {
+    private void loadImageByVolley() {
         RequestQueue mQueue = Volley.newRequestQueue(ShowTeacherActivity.this);
         ImageRequest imageRequest = new ImageRequest(mImgUrl, new Response.Listener<Bitmap>() {
             @Override
@@ -205,30 +214,6 @@ public class ShowTeacherActivity extends BaseActivity {
         return newBitmap;
     }
 
-
-    /**
-     * 将ImageView的图片保存
-     *
-     * @param imageView ImageView
-     */
-    private void savePicFromImageView(ImageView imageView) {
-        imageView.setDrawingCacheEnabled(true);
-        imageView.buildDrawingCache();
-        Bitmap bitmap = Bitmap.createBitmap(imageView.getDrawingCache());
-        imageView.setDrawingCacheEnabled(false);
-        Logger.i(1, "bitmap size:" + bitmap.getByteCount());
-        String folder = FileOperateUtil.getFolderPath(this, FileOperateUtil.TYPE_IMAGE, "test");
-        String imgName = FileOperateUtil.createFileNmae(".jpg");
-        String path = folder + File.separator + mName + imgName;
-        Logger.i(1, "path:" + path);
-        boolean isOk = ImageUtil.savePic(getApplication(), bitmap, path, imgName);
-        if (isOk) {
-            toastGo("保存图片成功!");
-        } else {
-            toastGo("保存图片失败!");
-        }
-    }
-
     /**
      * 上下文菜单创建回调
      *
@@ -254,23 +239,25 @@ public class ShowTeacherActivity extends BaseActivity {
         switch (item.getItemId()) {
             case 1:
                 mobClickAgentGo(CommonDefine.UM_CLICK_SAVE_TEACHER);
-                boolean isOk = ImageUtil.savePicFromImageView(ShowTeacherActivity.this, mIvShowTeacher, mSavingPath, mSavingFileName);
+                boolean isOk = ImageUtil.savePicFromImageView(ShowTeacherActivity.this, mIvShowTeacher, mSavingPath, mTeacherFileName);
                 if (isOk) {
-                    toastGo("保存图片成功!");
+                    toastGo(getString(R.string.pic_saved_success));
+                    Logger.i("保存图片在:" + mSavingPath);
                 } else {
-                    toastGo("保存图片失败!");
+                    toastGo(getString(R.string.pic_saved_failed));
                 }
                 break;
             case 2:
                 mobClickAgentGo(CommonDefine.UM_CLICK_SAVE_TEACHER_COMPOSED);
                 Bitmap bitmap = ImageUtil.getBitmapFromView(mIvShowTeacher);//获取老师的bitmap(显示尺寸,而不是原图尺寸,毕竟原图大小不确定)
-                bitmap = compositeBitmaps(bitmap, mTvNameToComposed, mIvShowMyGirl);
-                boolean isSavingOk = ImageUtil.savePic(ShowTeacherActivity.this, bitmap, mSavingPath, mSavingFileName);
+                bitmap = compositeBitmaps(bitmap, mTvNameToComposed, mIvShowMyGirl);//进行图片合成
+                boolean isSavingOk = ImageUtil.savePic(ShowTeacherActivity.this, bitmap, mSavingCompPath, mTeacherComposedFileName);
+                Logger.i("保存图片在:" + mSavingCompPath);
                 if (isSavingOk) {
-                    toastGo("保存图片成功!");
+                    toastGo(getString(R.string.pic_saved_success));
                     bitmap.recycle();
                 } else {
-                    toastGo("保存图片失败!");
+                    toastGo(getString(R.string.pic_saved_failed));
                     bitmap.recycle();
                 }
                 break;

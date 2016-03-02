@@ -18,6 +18,7 @@ import android.os.HandlerThread;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.text.TextUtils;
+import android.text.style.TtsSpan;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -41,6 +42,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -57,7 +59,6 @@ public class ShowIMGActivity extends BaseActivity {
     //这里的IMAGE_CODE是自己任意定义的
     private final int TAG_CHOOSE_IMG = 0;
     private final int TAG_TAKE_PHOTO = 11000;
-    private Button mBtnAllPics;
     private Button mBtnTakePhoto;
     private Button mBtnChoosePic;
     private Button mBtnCheckFace;
@@ -69,8 +70,6 @@ public class ShowIMGActivity extends BaseActivity {
     private HandlerThread detectThread;
     private HttpRequests request;
     private String mPhotoPath;
-    private TextView tvName;
-    private TextView tvSimilar;
     private ImageView mIvGoRetakePhoto;
     private ImageView mIvGoPhotoLibrary;
     private AlertDialog mConnectingDialog;
@@ -115,26 +114,16 @@ public class ShowIMGActivity extends BaseActivity {
         fab.setRippleColor(getResources().getColor(R.color.bright_foreground_inverse_material_light));
         mIvShowPhoto = (ImageView) findViewById(R.id.iv_show_photo);
         mIvShowPhoto.setImageBitmap(mBitmap);
-        tvName = (TextView) findViewById(R.id.tv_name);
-        tvSimilar = (TextView) findViewById(R.id.tv_similar);
         mBtnTakePhoto = (Button) findViewById(R.id.btn_take_photo);
         mBtnTakePhoto.setOnClickListener(new ClickTakePhoto());
         mBtnChoosePic = (Button) findViewById(R.id.btn_choose_pic);
         mBtnChoosePic.setOnClickListener(new ClickChoosePic());
-        mBtnAllPics = (Button) findViewById(R.id.btn_all_pics);
-        mBtnAllPics.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getAllPic();
-            }
-        });
         mBtnCheckFace = (Button) findViewById(R.id.btn_check_face);
         mBtnCheckFace.setOnClickListener(new ClickCheckFaceServer());
         mIvGoRetakePhoto = ((ImageView) findViewById(R.id.iv_go_retake_photo));
         mIvGoRetakePhoto.setOnClickListener(new ClickTakePhoto());
         mIvGoPhotoLibrary = ((ImageView) findViewById(R.id.iv_go_photo_library));
         mIvGoPhotoLibrary.setOnClickListener(new ClickChoosePic());
-
     }
 
     @Override
@@ -167,7 +156,6 @@ public class ShowIMGActivity extends BaseActivity {
                     }
                 } else {
                     mBitmap = MediaStore.Images.Media.getBitmap(resolver, originalUri);
-                    mBitmap = ImageUtil.compressBitmap(mBitmap, 720);
                     mIvShowPhoto.setImageBitmap(mBitmap);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                         mPhotoPath = FileUtil.getPathFromUri(getApplication(), originalUri);
@@ -188,45 +176,15 @@ public class ShowIMGActivity extends BaseActivity {
                     }
                     Logger.i("-----", "选取图片path:" + mPhotoPath);
                     mAction = ACTION_CHOOSE_PIC;
-                    tvName.setVisibility(View.INVISIBLE);
-                    tvSimilar.setVisibility(View.INVISIBLE);
                 }
 
             } catch (IOException e) {
                 Logger.i("---err", e.toString());
             }
-        }
-        //拍照回调
-        if (requestCode == TAG_TAKE_PHOTO) {
-            Bundle bundle = data.getExtras();
-            boolean isStartSelected = bundle.getBoolean("bbbb");
-            if (isStartSelected) {
-                choosePic();
-                return;
-            }
-            String imagePath = bundle.getString("aaaa");
-            if (imagePath != null) {
-                mPhotoPath = imagePath;
-                File file = new File(imagePath);
-                Uri uri = Uri.fromFile(file);
-                Bitmap bm = BitmapFactory.decodeFile(imagePath);
-//                bm=ImageUtil.compressBitmap(bm, 120);
-                mBitmap = bm;
-                mIvShowPhoto.setImageBitmap(bm);
-                tvName.setVisibility(View.INVISIBLE);
-                tvSimilar.setVisibility(View.INVISIBLE);
-            }
+            mobClickAgentGo(CommonDefine.UM_SHOW_IMG_CHOOSE_PIC);
         }
     }
 
-    /**
-     * 选择图片
-     */
-    private void choosePic() {
-        Intent getAlbum = new Intent(Intent.ACTION_GET_CONTENT);
-        getAlbum.setType(IMAGE_TYPE);
-        startActivityForResult(getAlbum, TAG_CHOOSE_IMG);
-    }
 
     private class ClickTakePhoto implements View.OnClickListener {
 
@@ -236,12 +194,16 @@ public class ShowIMGActivity extends BaseActivity {
         }
     }
 
+    /**
+     * 点击事件:选择图片
+     */
     private class ClickChoosePic implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {
-            mobClickAgentGo(CommonDefine.UM_SHOW_IMG_CHOOSE_PIC);
-            choosePic();
+            Intent getAlbum = new Intent(Intent.ACTION_GET_CONTENT);
+            getAlbum.setType(IMAGE_TYPE);
+            startActivityForResult(getAlbum, TAG_CHOOSE_IMG);
         }
     }
 
@@ -251,11 +213,9 @@ public class ShowIMGActivity extends BaseActivity {
         public void onClick(View v) {
             createConnectingDialog();
             CommonUtils.disableViewForSeconds(v, 666);
-            mobClickAgentGo(CommonDefine.UM_FIND_TEACHER_ON_CHOOSE_PIC);
             //获取当前时间戳,用于统计找老师用时
             Date date = new Date();
             long longAgo = date.getTime();
-            Logger.i(1);
             //根据不同的action打不同的点
             if (!TextUtils.isEmpty(mAction)) {
                 if (mAction.equals(ACTION_TAKE_PHOTO)) {
@@ -266,7 +226,6 @@ public class ShowIMGActivity extends BaseActivity {
             } else {
                 Logger.e("check face:got no action!!---dc");
             }
-            Logger.i(2);
             upLoadAndCheckFace(longAgo);
         }
     }
@@ -312,15 +271,17 @@ public class ShowIMGActivity extends BaseActivity {
      */
     private void upLoadAndCheckFace(final long longAgo) {
         RequestParams params = new RequestParams();
+        long time = CommonUtils.timeSpendCheck();
         Bitmap bitmap = mBitmap;
         if (mBitmap.getHeight() >= 1000) {
             bitmap = ImageUtil.scalePicByMaxSide(mBitmap, 960);
         }
+        byte[] bytes = ImageUtil.compressBitmapInOrderSize(bitmap, 100);//将图片压缩到100K以内
+        Logger.i("上传图片处理耗时:"+CommonUtils.timeSpendCheck(time));
         Logger.i(1, "上传的图片宽高:" + bitmap.getWidth() + "_" + bitmap.getHeight());
-        byte[] bytes = FileUtil.Bitmap2Bytes(bitmap);
-        Logger.i(1, "上传的图片大小:" + bytes.length);
-        String tempPath = FileOperateUtil.getTempFolderPath(ShowIMGActivity.this, "av-camera");
-        tempPath = CommonDefine.PIC_TEMP_PATH + "temp.jpg";
+        Logger.i(1, "上传的图片大小:" + bytes.length / 1024 + "kb");
+        String tempPath = FileOperateUtil.getTempFolderPath(ShowIMGActivity.this, "ac-temp");
+        tempPath += "temp.jpg";
         Logger.i(1, "temp path:", tempPath);
         File file = FileUtil.bytes2File(tempPath, bytes);
         try {
@@ -328,7 +289,6 @@ public class ShowIMGActivity extends BaseActivity {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-//        params.put("name", "hahahahaha");
         HttpHandler.postImg(params, CommonDefine.URL_UPLOAD_2, new JsonHttpResponseHandler() {
             @Override
             public void onFinish() {
@@ -346,14 +306,13 @@ public class ShowIMGActivity extends BaseActivity {
                     try {
                         int status = response.getInt("status");
                         String info;
-                        Logger.i(1, "status:" + status);
                         switch (status) {
                             case 0:
                                 JSONArray girls = response.getJSONArray("av_girls");
                                 JSONObject girlJb = girls.getJSONObject(0);
                                 String url = girlJb.getString("url");
                                 String name = girlJb.getString("name");
-                                float similar = (float) girlJb.getDouble("similarity");
+                                double similar = girlJb.getDouble("similarity");
                                 goShowTeacher(url, name, similar, longAgo);
                                 break;
                             case -1:
@@ -399,21 +358,39 @@ public class ShowIMGActivity extends BaseActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                toastGo("网络连接错误,请检-查一下网络哈");
+                toastGo("网络连接错误,请检查一下网络哈");
                 Logger.e("网络请求失败-2");
                 mConnectingDialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                toastGo("网络连接错误,请检查一下网络哈");
+                Logger.e("网络请求失败-3");
+                Logger.e(throwable.toString());
             }
         });
 
     }
 
-    private void goShowTeacher(String imgUrl, String name, float similarity, long longAgo) {
+    /**
+     * 跳转到showTeacher页面
+     *
+     * @param imgUrl     图片url
+     * @param name       名字
+     * @param similarity 相似度
+     * @param longAgo    请求时的毫秒数
+     */
+    private void goShowTeacher(String imgUrl, String name, double similarity, long longAgo) {
+        BigDecimal bigDecimal = new BigDecimal((float) similarity);
+        float newSimilarity = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue();
         Intent intent = new Intent();
         intent.setClass(ShowIMGActivity.this, ShowTeacherActivity.class);
         intent.putExtra(CommonDefine.TAG_IMAGE_PATH, mPhotoPath);
         intent.putExtra(CommonDefine.TAG_IMAGE_URL, imgUrl);
         intent.putExtra(CommonDefine.TAG_TEACHER_NAME, name);
-        intent.putExtra(CommonDefine.TAG_SIMILAR, String.valueOf(similarity));
+        intent.putExtra(CommonDefine.TAG_SIMILAR, String.valueOf(newSimilarity));
         intent.putExtra(CommonDefine.TAG_TIME, longAgo);
         startActivity(intent);
     }
@@ -471,28 +448,5 @@ public class ShowIMGActivity extends BaseActivity {
             localCanvas.drawRect(rect, localPaint);
         }
         return tmp;
-    }
-
-
-    public void getAllPic() {
-        String[] projection = {MediaStore.Images.Thumbnails._ID};
-        Uri uri = null;
-        Cursor cursor = managedQuery(
-                MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI,
-                projection, //List of columns to return ：想要他返回的列
-                null, // Return all rows
-                null,
-                null);
-        int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Thumbnails._ID);
-        int i = 0;
-        while (cursor.moveToNext() && i < cursor.getCount()) {
-            //移到指定的位置，遍历数据库
-            cursor.moveToPosition(i);
-            uri = Uri.withAppendedPath(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, cursor.getInt(columnIndex) + "");
-            Logger.i("---", "pic-uri:", uri);
-            list.add(uri);
-            i++;
-        }
-        cursor.close();//关闭数据库
     }
 }

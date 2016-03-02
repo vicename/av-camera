@@ -207,12 +207,12 @@ public class CameraView extends SurfaceView implements CameraOperation {
         mMediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_480P));
         //设置输出视频朝向，便于播放器识别。由于是竖屏录制，需要正转90°
         mMediaRecorder.setOrientationHint(90);
-        String path = FileOperateUtil.getFolderPath(getContext(), FileOperateUtil.TYPE_VIDEO, "test");
+        String path = FileOperateUtil.getFolderPathDC("video");
         File directory = new File(path);
         if (!directory.exists())
             directory.mkdirs();
         try {
-            String name = "video" + FileOperateUtil.createFileNmae(".3gp");
+            String name = "video" + FileOperateUtil.createFileName(".3gp");
             mRecordPath = path + File.separator + name;
             File mRecAudioFile = new File(mRecordPath);
             mMediaRecorder.setOutputFile(mRecAudioFile
@@ -262,7 +262,7 @@ public class CameraView extends SurfaceView implements CameraOperation {
             Bitmap bitmap = getVideoThumbnail(mRecordPath);
 
             if (bitmap != null) {
-                String mThumbnailFolder = FileOperateUtil.getFolderPath(getContext(), FileOperateUtil.TYPE_THUMBNAIL, "test");
+                String mThumbnailFolder = FileOperateUtil.getFolderPathDC("thumbnail");
                 File folder = new File(mThumbnailFolder);
                 if (!folder.exists()) {
                     folder.mkdirs();
@@ -481,7 +481,7 @@ public class CameraView extends SurfaceView implements CameraOperation {
     /**
      * 获取最大缩放级别，最大为40
      *
-     * @return
+     * @return 缩放级别
      */
     @Override
     public int getMaxZoom() {
@@ -523,7 +523,6 @@ public class CameraView extends SurfaceView implements CameraOperation {
      * 设置照相机参数
      */
     private void setCameraParameters() {
-        Log.i("---", "camera paramenters:" + mCamera.getParameters());
         setCameraPreviewSize();//设置预览尺寸
         Camera.Parameters parameters = mCamera.getParameters();
         //设置生成的图片大小

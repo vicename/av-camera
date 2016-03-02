@@ -326,7 +326,6 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
         public void onPictureTaken(byte[] data, Camera camera) {
             if (mSavePath == null) throw new RuntimeException("mSavePath is null");
             if (mImageDataHandler == null) mImageDataHandler = new ImageDataHandler(mContext);
-            mImageDataHandler.setMaxSize(200);
             Bitmap bm = mImageDataHandler.save(data);
             String imagePath = null;
             if (bm != null) {
@@ -450,7 +449,7 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
          *
          * @param bm 拍照生成的图片
          */
-        public void onTakePictureEnd(Bitmap bm);
+        void onTakePictureEnd(Bitmap bm);
 
         /**
          * 临时图片动画结束后触发
@@ -458,8 +457,8 @@ public class CameraContainer extends RelativeLayout implements CameraOperation {
          * @param bm      拍照生成的图片
          * @param isVideo true：当前为录像缩略图 false:为拍照缩略图
          */
-        public void onAnimtionEnd(Bitmap bm, boolean isVideo);
+        void onAnimationEnd(Bitmap bm, boolean isVideo);
 
-        public void onSavePictureEnd(String path);
+        void onSavePictureEnd(String path);
     }
 }

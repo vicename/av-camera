@@ -230,12 +230,12 @@ public class ImageUtil {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);// 质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
         int options = 99;
         while (baos.toByteArray().length / 1024 > maxSize) { // 循环判断如果压缩后图片是否大于100kb,大于继续压缩
-            options -= 3;// 每次都减少10
+            options -= 10;// 每次都减少10
             //压缩比小于0，不再压缩
             if (options < 0) {
                 break;
             }
-            Logger.i(1, baos.toByteArray().length / 1024 + "");
+            Logger.i(1, "压缩中,照片大小", baos.toByteArray().length / 1024 + "KB-----ImageUtil");
             baos.reset();// 重置baos即清空baos
             bitmap.compress(Bitmap.CompressFormat.JPEG, options, baos);// 这里压缩options%，把压缩后的数据存放到baos中
         }
@@ -293,7 +293,7 @@ public class ImageUtil {
             isOk = true;
         } catch (IOException e) {
             e.printStackTrace();
-            isOk=false;
+            isOk = false;
         }
         return isOk;
     }
@@ -325,7 +325,7 @@ public class ImageUtil {
             fos.flush();
             fos.close();
             //把文件插入到系统图库
-            MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), imageName, null);
+//            MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), imageName, null);
             //通知系统图库更新
             context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + path)));
             isOk = true;

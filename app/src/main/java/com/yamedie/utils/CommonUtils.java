@@ -132,4 +132,23 @@ public class CommonUtils {
             }
         }, time);
     }
+
+    /**
+     * 检查耗时
+     *
+     * @param time 毫秒数
+     * @return 时间差
+     */
+    public static int timeSpendCheck(long time) {
+        if (time > 100000) {
+            Date date = new Date();
+            return (int) (date.getTime() - time);
+        } else {
+            return 0;
+        }
+    }
+
+    public static long timeSpendCheck() {
+        return new Date().getTime();
+    }
 }
