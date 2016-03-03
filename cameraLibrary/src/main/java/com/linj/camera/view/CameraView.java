@@ -126,7 +126,6 @@ public class CameraView extends SurfaceView implements CameraOperation {
                     openCamera();
                 }
                 //用于判断当由其他页面返回至相机时,区分前后摄像头
-                Logger.i(1, "is front:" + mIsFrontCamera);
                 if (goodSizeList != null)
                     goodSizeList.clear();
                 if (mIsFrontCamera) {
@@ -340,7 +339,6 @@ public class CameraView extends SurfaceView implements CameraOperation {
                     updateCameraOrientation();
                     mCamera.reconnect();
                     mCamera.startPreview();
-//                    setCameraParameters();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -351,7 +349,6 @@ public class CameraView extends SurfaceView implements CameraOperation {
                     mCamera.setPreviewDisplay(getHolder());
                     mCamera.startPreview();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -373,7 +370,7 @@ public class CameraView extends SurfaceView implements CameraOperation {
             int cameraCount = Camera.getNumberOfCameras();
             for (int i = 0; i < cameraCount; i++) {
                 Camera.getCameraInfo(i, cameraInfo);
-                Log.i("---", "camera.facing:" + cameraInfo.facing);
+                Logger.i("camera.facing:" + cameraInfo.facing);
                 if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                     try {
                         mCamera = Camera.open(i);
@@ -641,7 +638,6 @@ public class CameraView extends SurfaceView implements CameraOperation {
      * 设置相机预览尺寸,同时设置surfaceView显示尺寸
      */
     private void setCameraPreviewSize() {
-        Logger.i("---setCameraPreviewSize");
         Camera.Parameters parameters = mCamera.getParameters();
         // 选择合适的预览尺寸
         List<Camera.Size> sizeList = parameters.getSupportedPreviewSizes();
@@ -692,8 +688,7 @@ public class CameraView extends SurfaceView implements CameraOperation {
             setSurfaceViewParams(height, width);
             //预览图片大小
 //            parameters.setPreviewSize(800, 500);//前面的数字一定要比后面的大, 否则报错.因为安卓默认较长的变为"width".神奇
-            Logger.i(1, "camera preview size:" + parameters.getPreviewSize().width + "-" + parameters.getPreviewSize().height);
-            Logger.i(1, "surface view size:" + width + "_" + height);
+            Logger.i(1, "预览尺寸和surfaceView显示尺寸:" + parameters.getPreviewSize().width + "-" + parameters.getPreviewSize().height+","+width+"-"+height);
         }
     }
 

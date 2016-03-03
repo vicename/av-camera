@@ -13,23 +13,15 @@ import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.text.TextUtils;
-import android.text.style.TtsSpan;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.faceplusplus.api.FaceDetecter;
-import com.facepp.error.FaceppParseException;
-import com.facepp.http.HttpRequests;
-import com.facepp.http.PostParameters;
 import com.linj.FileOperateUtil;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -58,17 +50,12 @@ public class ShowIMGActivity extends BaseActivity {
     private final String IMAGE_TYPE = "image/*";
     //这里的IMAGE_CODE是自己任意定义的
     private final int TAG_CHOOSE_IMG = 0;
-    private final int TAG_TAKE_PHOTO = 11000;
     private Button mBtnTakePhoto;
     private Button mBtnChoosePic;
     private Button mBtnCheckFace;
     private ImageView mIvShowPhoto;
     private List<Uri> list;
     private Bitmap mBitmap;//图片对象
-    private FaceDetecter detecter;
-    private Handler detectHanler;
-    private HandlerThread detectThread;
-    private HttpRequests request;
     private String mPhotoPath;
     private ImageView mIvGoRetakePhoto;
     private ImageView mIvGoPhotoLibrary;
@@ -89,12 +76,6 @@ public class ShowIMGActivity extends BaseActivity {
 
     private void initData() {
         list = new ArrayList<>();
-        detecter = new FaceDetecter();
-        detecter.init(ShowIMGActivity.this, CommonDefine.API_KEY_VALUE);
-        detectThread = new HandlerThread("detect");
-        detectThread.start();
-        detectHanler = new Handler(detectThread.getLooper());
-        request = new HttpRequests(CommonDefine.API_KEY_VALUE, CommonDefine.API_SECRET_VALUE);
         Intent intent = getIntent();
         if (intent != null) {
             mPhotoPath = getIntent().getStringExtra(CommonDefine.TAG_IMAGE_PATH);//获取传过来的图片
@@ -186,6 +167,9 @@ public class ShowIMGActivity extends BaseActivity {
     }
 
 
+    /**
+     * 点击事件:点击结束当前页面拍照
+     */
     private class ClickTakePhoto implements View.OnClickListener {
 
         @Override
@@ -227,39 +211,6 @@ public class ShowIMGActivity extends BaseActivity {
                 Logger.e("check face:got no action!!---dc");
             }
             upLoadAndCheckFace(longAgo);
-        }
-    }
-
-    private class ClickCheckFace implements View.OnClickListener {
-
-        @Override
-        public void onClick(View v) {
-            FaceDetecter.Face[] faces = detecter.findFaces(mBitmap);
-            Logger.i("---", "face[]", faces);
-            detectHanler.post(new Runnable() {
-                @Override
-                public void run() {
-                    FaceDetecter.Face[] faces = detecter.findFaces(mBitmap);
-                    if (faces == null) {
-                        toastGo("没有人脸");
-                        return;
-                    }
-                    try {
-                        request.offlineDetect(detecter.getImageByteArray(), detecter.getResultJsonString(), new PostParameters());
-                    } catch (FaceppParseException e) {
-                        e.printStackTrace();
-                    }
-                    final Bitmap bit = getFaceInfoBitmap(faces, mBitmap);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mIvShowPhoto.setImageBitmap(bit);
-                            System.gc();
-                        }
-                    });
-
-                }
-            });
         }
     }
 
@@ -429,23 +380,5 @@ public class ShowIMGActivity extends BaseActivity {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
         startActivity(intent);
-    }
-
-    public static Bitmap getFaceInfoBitmap(FaceDetecter.Face[] faceinfos, Bitmap oribitmap) {
-        Bitmap tmp;
-        tmp = oribitmap.copy(Bitmap.Config.ARGB_8888, true);
-
-        Canvas localCanvas = new Canvas(tmp);
-        Paint localPaint = new Paint();
-        localPaint.setColor(0xffff0000);
-        localPaint.setStyle(Paint.Style.STROKE);
-        for (FaceDetecter.Face localFaceInfo : faceinfos) {
-            RectF rect = new RectF(oribitmap.getWidth() * localFaceInfo.left, oribitmap.getHeight()
-                    * localFaceInfo.top, oribitmap.getWidth() * localFaceInfo.right,
-                    oribitmap.getHeight()
-                            * localFaceInfo.bottom);
-            localCanvas.drawRect(rect, localPaint);
-        }
-        return tmp;
     }
 }

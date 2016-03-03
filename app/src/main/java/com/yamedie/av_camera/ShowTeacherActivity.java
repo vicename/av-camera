@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
@@ -57,6 +58,7 @@ public class ShowTeacherActivity extends BaseActivity {
     private FeedbackAgent mFeedbackAgent;//友盟反馈
     private final String TEACHER = "teacher";
     private final String TEACHER_COMPOSED = "teacher-comp";
+    private ScrollView mScrollView;
 
 
     @Override
@@ -122,6 +124,8 @@ public class ShowTeacherActivity extends BaseActivity {
         mTvBaseInfoComposed.setText(baseInfo);
         Bitmap myGirlThumbnail = ImageUtil.getImageThumbnail(mImgPath, thumbnailSize, thumbnailSize);//获取被拍摄女孩的缩略图
         mIvShowMyGirl.setImageBitmap(myGirlThumbnail);
+        mScrollView = (ScrollView) findViewById(R.id.scrollView);
+        mScrollView.smoothScrollTo(0, 0);
         //mImgUrl = CommonDefine.URL_IMAGE_LOAD_TEST;
         //Picasso.with(this).load(mImgUrl).placeholder(R.drawable.abc_dialog_material_background_light).error(R.drawable.ic_error).into(mIvShowTeacher);
         //loadImageByVolley();
@@ -174,6 +178,7 @@ public class ShowTeacherActivity extends BaseActivity {
                     Logger.i("time spend:" + spendSeconds);
                     mIvShowTeacher.setImageBitmap(bitmap);
                     mIvShowTeacher.startAnimation(animation);
+                    mScrollView.smoothScrollTo(0, 0);
                     Map<String, String> map = new HashMap<>();
                     map.put(CommonDefine.UM_FIND_TEACHER_TIME, String.valueOf(spendSeconds));
                     mobClickAgentGo(CommonDefine.UM_SHOW_TEACHER, map);

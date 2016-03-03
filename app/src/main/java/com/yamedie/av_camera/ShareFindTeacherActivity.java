@@ -66,10 +66,13 @@ public class ShareFindTeacherActivity extends BaseActivity {
         }
     }
 
+    /**
+     * 接收外部intent传来的image
+     * @param intent intent,来自其他应用的图片信息
+     */
     private void handleSendImage(Intent intent) {
-        Uri originalUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        Uri originalUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
         if (originalUri != null) {
-            // Update UI to reflect image being shared
             if (originalUri.toString().startsWith("file:///")) {
                 mPhotoPath = originalUri.getPath();
                 mBitmap = BitmapFactory.decodeFile(mPhotoPath);
@@ -97,6 +100,7 @@ public class ShareFindTeacherActivity extends BaseActivity {
                         cursor.close();
                     }
                 } catch (IOException e) {
+                    Logger.e("解析照片失败!!");
                     e.printStackTrace();
                 }
 
