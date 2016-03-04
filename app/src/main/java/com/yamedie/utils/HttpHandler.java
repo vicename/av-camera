@@ -28,7 +28,7 @@ public class HttpHandler {
      * @param url             url地址
      * @param responseHandler 回调
      */
-    public static void postImg(RequestParams params, String url, JsonHttpResponseHandler responseHandler) {
+    public static void postImg(RequestParams params, String url,String token, JsonHttpResponseHandler responseHandler) {
         try {
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
             trustStore.load(null, null);
@@ -37,6 +37,7 @@ public class HttpHandler {
             AsyncHttpClient client = new AsyncHttpClient();
             client.setTimeout(30 * 1000);
             client.setSSLSocketFactory(socketFactory);
+            client.addHeader("Token",token);
             client.post(url, params, responseHandler);
         } catch (KeyStoreException | CertificateException | UnrecoverableKeyException
                 | NoSuchAlgorithmException | IOException | KeyManagementException e) {

@@ -9,11 +9,18 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+        buildConfigField 'boolean', "BAIDU_UPDATE", "false"//默认不进行百度更新
     }
     buildTypes {
         release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "boolean", "IS_DEBUG", "false"//设置debug
+        }
+        debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "boolean", "IS_DEBUG", "true"//设置debug
         }
     }
 
@@ -25,6 +32,84 @@ android {
 }
 android {
     productFlavors {
+        //A 6
+        android {
+            buildConfigField "boolean", "BAIDU_UPDATE", "true"
+        }
+        anzhi {
+        }
+        anbei {
+        }
+        anfen {
+        }
+        android_garden {
+        }
+        //B 2
+        baidushoujizushou {
+            buildConfigField "boolean", "BAIDU_UPDATE", "true"
+        }
+        //H 2
+        hulishangdian {
+        }
+        huawei {
+        }
+        //J 2
+        jifeng {
+        }
+        // K
+        //L 4
+        lenovoleshangdian {
+        }
+        leshiyingyong {
+        }
+        //迈博内部专用版本,debug为true
+        myboo {
+            buildConfigField "boolean", "IS_DEBUG", "true"
+        }
+        // M 3
+        maopaotang {
+        }
+        meizu {
+        }
+        mumayi {
+        }
+//        Nduoshichang {}
+        oppo {
+        }
+        ppshoujizhushou {
+        }
+//        qitushuaji {}
+        //S 3
+        sougoushoujizhushou {
+        }
+        suning {
+        }
+        shuajidashi {
+        }
+        //V
+        // W 5 91 360
+        w91 {
+            buildConfigField "boolean", "BAIDU_UPDATE", "true"
+        }
+        w360 {
+        }
+        wandoujia {
+        }
+        wooshangdian {
+        }
+        //X 1
+        xiaomi {
+        }
+        // 3
+        yingyongbao {
+        }
+        yingyonghui {
+        }
+        youyishichang {
+        }
+    }
+    productFlavors.all {
+        flavor -> flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
     }
 
     dependencies {
@@ -37,7 +122,4 @@ android {
         compile project(':cameraLibrary')
         compile project(':http')
     }
-}
-dependencies {
-    compile files('libs/volley.jar')
 }

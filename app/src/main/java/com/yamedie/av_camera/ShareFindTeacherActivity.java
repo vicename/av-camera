@@ -68,6 +68,7 @@ public class ShareFindTeacherActivity extends BaseActivity {
 
     /**
      * 接收外部intent传来的image
+     *
      * @param intent intent,来自其他应用的图片信息
      */
     private void handleSendImage(Intent intent) {
@@ -141,7 +142,9 @@ public class ShareFindTeacherActivity extends BaseActivity {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        HttpHandler.postImg(params, CommonDefine.URL_UPLOAD_2, new JsonHttpResponseHandler() {
+        String token = CommonUtils.getTime(false);
+        token = CommonUtils.stringToMD5("temp.jpg" + token);
+        HttpHandler.postImg(params, CommonDefine.URL_UPLOAD_2, token, new JsonHttpResponseHandler() {
             @Override
             public void onFinish() {
                 super.onFinish();

@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.linj.FileOperateUtil;
+import com.linj.imageloader.CommonUtil;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -38,6 +39,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import com.yamedie.common.CommonDefine;
 import com.yamedie.utils.CommonUtils;
@@ -210,6 +212,10 @@ public class ShowIMGActivity extends BaseActivity {
             } else {
                 Logger.e("check face:got no action!!---dc");
             }
+            String s = CommonUtils.getTime(false);
+
+
+            Logger.i("当前时间:" + s);
             upLoadAndCheckFace(longAgo);
         }
     }
@@ -227,19 +233,21 @@ public class ShowIMGActivity extends BaseActivity {
             bitmap = ImageUtil.scalePicByMaxSide(mBitmap, 960);
         }
         byte[] bytes = ImageUtil.compressBitmapInOrderSize(bitmap, 100);//将图片压缩到100K以内
-        Logger.i("上传图片处理耗时:"+CommonUtils.timeSpendCheck(time));
+        Logger.i("上传图片处理耗时:" + CommonUtils.timeSpendCheck(time));
         Logger.i(1, "上传的图片宽高:" + bitmap.getWidth() + "_" + bitmap.getHeight());
         Logger.i(1, "上传的图片大小:" + bytes.length / 1024 + "kb");
         String tempPath = FileOperateUtil.getTempFolderPath(ShowIMGActivity.this, "ac-temp");
         tempPath += "temp.jpg";
         Logger.i(1, "temp path:", tempPath);
-        File file = FileUtil.bytes2File(tempPath, bytes);
+        final File file = FileUtil.bytes2File(tempPath, bytes);
         try {
             params.put("pic", file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        HttpHandler.postImg(params, CommonDefine.URL_UPLOAD_2, new JsonHttpResponseHandler() {
+        String token = CommonUtils.getTime(false);
+        token = CommonUtils.stringToMD5("temp.jpg" + token);
+        HttpHandler.postImg(params, CommonDefine.URL_UPLOAD_2, token, new JsonHttpResponseHandler() {
             @Override
             public void onFinish() {
                 super.onFinish();

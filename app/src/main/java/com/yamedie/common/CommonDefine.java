@@ -1,11 +1,13 @@
 package com.yamedie.common;
 
+import com.yamedie.av_camera.BuildConfig;
+
 /**
  * Created by Li Dachang on 16/1/26.
  * ..-..---.-.--..---.-...-..-....-.
  */
 public class CommonDefine {
-    public static final boolean IS_DEBUG =true;
+    public static final boolean IS_DEBUG = BuildConfig.IS_DEBUG;
     public static final String IS_FIRST = "is_first";
 
     public static final String API_KEY = "api_key";

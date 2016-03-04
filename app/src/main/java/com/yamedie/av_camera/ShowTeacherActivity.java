@@ -15,11 +15,6 @@ import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageRequest;
-import com.android.volley.toolbox.Volley;
 import com.linj.FileOperateUtil;
 import com.linj.imageloader.DisplayImageOptions;
 import com.linj.imageloader.DownloadImgUtils;
@@ -132,21 +127,6 @@ public class ShowTeacherActivity extends BaseActivity {
         //loadImageByLinjUtil("http://203.100.82.13/冬月枫/a53febe2gc7e4cd6e43d6&690.jpg");
         initPicassoTarget();
         Picasso.with(this).load(mImgUrl).into(mTarget);
-    }
-
-    private void loadImageByVolley() {
-        RequestQueue mQueue = Volley.newRequestQueue(ShowTeacherActivity.this);
-        ImageRequest imageRequest = new ImageRequest(mImgUrl, new Response.Listener<Bitmap>() {
-            @Override
-            public void onResponse(Bitmap bitmap) {
-                mIvShowTeacher.setImageBitmap(bitmap);
-            }
-        }, 0, 0, Bitmap.Config.RGB_565, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-            }
-        });
-        mQueue.add(imageRequest);
     }
 
     private void loadImageByLinjUtil(final String url) {
