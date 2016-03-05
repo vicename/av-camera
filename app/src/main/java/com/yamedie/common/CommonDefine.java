@@ -45,7 +45,7 @@ public class CommonDefine {
 
     //上传图片的url
     public static final String URL_UPLOAD = "http://192.168.13.76:3000/upload";
-    public static final String URL_UPLOAD_2 = "http://stg-avcam.leanapp.cn/upload";
+    public static final String URL_UPLOAD_2 = "http://avcam.leanapp.cn/upload";
 //    public static final String
 
     //测试用的图片url
