@@ -50,6 +50,7 @@ public class CommonDefine {
 
     //测试用的图片url
     public static final String URL_IMAGE_LOAD_TEST = "https://pic2.zhimg.com/82b27a292c6520c36afa29972d0673fd_b.jpg";
+    public static final String URL_IMAGE_LOAD_TEST3 = "3";
 
     /**
      * 友盟埋点
