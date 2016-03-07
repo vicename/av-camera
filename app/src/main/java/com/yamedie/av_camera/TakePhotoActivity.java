@@ -24,6 +24,7 @@ import com.linj.camera.view.CameraView;
 import java.io.File;
 import java.util.List;
 
+import com.umeng.update.UmengUpdateAgent;
 import com.yamedie.common.CommonDefine;
 import com.yamedie.utils.FileUtil;
 import com.yamedie.utils.ImageUtil;
@@ -56,6 +57,7 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_take_photo);
         init();
+        UmengUpdateAgent.update(this);
     }
 
     private void init() {
