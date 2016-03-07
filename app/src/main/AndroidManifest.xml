@@ -47,7 +47,7 @@
             android:name=".ShowIMGActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/title_activity_show_images"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".GuidActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -80,6 +80,13 @@
         <meta-data
             android:name="UMENG_CHANNEL"
             android:value="UMENG_CHANNEL" />
-    </application>
+        <!-- 友盟更新-->
+        <service
+            android:name="com.umeng.update.net.DownloadingService"
+            android:process=":DownloadingService" />
+        <activity
+            android:name="com.umeng.update.UpdateDialogActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+</application>
 
-</manifest>
+    </manifest>

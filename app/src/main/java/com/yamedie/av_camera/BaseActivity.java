@@ -49,6 +49,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+
         new Thread(new Runnable() {
             @Override
             public void run() {

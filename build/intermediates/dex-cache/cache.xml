@@ -2,11 +2,11 @@
 <items version="2" >
 
     <item
-        jar="D:\WWD\AV-Camera\app\build\intermediates\exploded-aar\AV-Camera\cameraLibrary\unspecified\jars\classes.jar"
+        jar="D:\WWD\AV-Camera\app\libs\umeng-update-v2.6.0.1.jar"
         jumboMode="false"
         revision="22.0.1"
-        sha1="d5e8c508081c85de9c0f832a27869ef653785c23">
-        <dex dex="D:\WWD\AV-Camera\app\build\intermediates\pre-dexed\debug\classes-598dfa2f2cb2e9e6e5e7cfa8c0b29219d9e9d431.jar" />
+        sha1="e76510af0986842b672c59d29502f3d29866320a">
+        <dex dex="D:\WWD\AV-Camera\app\build\intermediates\pre-dexed\anbei\debug\umeng-update-v2.6.0.1-9ee1844a1f51d4a5cfe8a9dc4f82a934f44d11e3.jar" />
     </item>
 
 </items>

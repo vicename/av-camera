@@ -383,7 +383,6 @@ public class ShowIMGActivity extends BaseActivity {
      * @param value 老师名字
      */
     public void jumpBrowser(String value) {
-
         String url = "http://wap.baidu.com/s?word=" + value; // web address
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
