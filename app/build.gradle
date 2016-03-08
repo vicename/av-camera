@@ -7,8 +7,8 @@ android {
         applicationId "com.yamedie.av_camera"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 4
-        versionName "1.2.1"
+        versionCode 3
+        versionName "1.1.2"
         buildConfigField 'boolean', "BAIDU_UPDATE", "false"//默认不进行百度更新
     }
     buildTypes {
@@ -122,5 +122,8 @@ android {
         compile project(':cameraLibrary')
         compile project(':http')
         compile project(':umeng_update')
+//        providedCompile project(':w360_ud')
+//        provided project(path:':w360_ud')
+//        suningCompile project(path:':w360_ud')
     }
 }

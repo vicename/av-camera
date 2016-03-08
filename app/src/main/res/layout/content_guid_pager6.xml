@@ -14,10 +14,10 @@
     <Button
         android:id="@+id/btn_go"
         android:layout_width="match_parent"
-        android:layout_height="140dp"
+        android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/selector_btn_no_limit_color_accent"
+        android:background="@drawable/selector_flat_btn_md_light"
  />
 
 </RelativeLayout>

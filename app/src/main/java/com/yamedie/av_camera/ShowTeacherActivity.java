@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.linj.FileOperateUtil;
 import com.linj.imageloader.DisplayImageOptions;
 import com.linj.imageloader.DownloadImgUtils;
+//import com.qihoo.appstore.updatelib.UpdateManager;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.umeng.fb.FeedbackAgent;

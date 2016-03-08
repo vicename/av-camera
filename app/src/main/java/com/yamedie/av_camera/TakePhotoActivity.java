@@ -24,7 +24,8 @@ import com.linj.camera.view.CameraView;
 import java.io.File;
 import java.util.List;
 
-import com.umeng.update.UmengUpdateAgent;
+//import com.qihoo.appstore.updatelib.AppInfo;
+//import com.qihoo.appstore.updatelib.UpdateManager;
 import com.yamedie.common.CommonDefine;
 import com.yamedie.utils.FileUtil;
 import com.yamedie.utils.ImageUtil;
@@ -57,7 +58,7 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_take_photo);
         init();
-        UmengUpdateAgent.update(this);
+        initUpdate();
     }
 
     private void init() {
@@ -144,6 +145,40 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
             }
             mobClickAgentGo(CommonDefine.UM_TAKE_PHOTO_CHOOSE_PIC);
         }
+    }
+
+    private void initUpdate() {
+        //利用反射判断百度 友盟 360的自动更新是否存在,是的话则使用其自动更新
+        //此方法需要在build文件中进行配置,即根据不同渠道配置不同的依赖
+        try {
+            Class classUmeng = Class.forName("com.umeng.update.util.UmengUpdateAgent");
+            if (classUmeng != null) {
+                Logger.i("umeng update exist");
+//                UmengUpdateAgent.update(this);
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+//        try {
+//            Class classW360 = Class.forName("com.qihoo.appstore.updatelib.UpdateManager");
+//            if (classW360 != null) {
+//                Logger.i("360 update exist");
+//                UpdateManager.checkUpdate(TakePhotoActivity.this);
+//                return;
+//            }
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//        }
+
+
+//        UpdateManager.setDebug(true);
+//        UpdateManager.setTestMode(1);
+//        UpdateManager.checkUpdate(TakePhotoActivity.this, new UpdateManager.CheckUpdateListener() {
+//            @Override
+//            public void onResult(boolean b, Bundle bundle) {
+//                Logger.i("is update:" + b + ",action:" + bundle.getString("KEY_ERROR_MSG"));
+//            }
+//        });
     }
 
     /**
