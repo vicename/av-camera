@@ -103,7 +103,12 @@ public class ShowTeacherActivity extends BaseActivity {
             @Override
             public void run() {
                 mFeedbackAgent = new FeedbackAgent(ShowTeacherActivity.this);
-                mFeedbackAgent.sync();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mFeedbackAgent.sync();
+                    }
+                });
             }
         }).start();
     }
