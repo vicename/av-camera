@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">Bd_Ud</string>
+
+    <string name="app_name">BDAutoUpdateDemo</string>
+
 </resources>

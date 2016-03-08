@@ -28,9 +28,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-//import com.qihoo.appstore.updatelib.AppInfo;
-//import com.qihoo.appstore.updatelib.UpdateManager;
-import com.umeng.update.UmengUpdateAgent;
 import com.yamedie.common.CommonDefine;
 import com.yamedie.utils.FileUtil;
 import com.yamedie.utils.ImageUtil;
@@ -152,20 +149,18 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * 初始化自动更新方法,利用反射判断百度 友盟 360的自动更新是否存在,是的话则使用其自动更新
+     * 此方法需要在build文件中进行配置,即根据不同渠道配置不同的依赖
+     */
     private void initUpdate() {
-        //利用反射判断百度 友盟 360的自动更新是否存在,是的话则使用其自动更新
-        //此方法需要在build文件中进行配置,即根据不同渠道配置不同的依赖
-        try {
+        try {//友盟
             Class classUmeng = Class.forName("com.umeng.update.UmengUpdateAgent");
-            if (classUmeng != null) {
-                Logger.i("umeng update exist");
-                Method updateMethodUmeng = classUmeng.getDeclaredMethod("update", Context.class);
-                Object classObj=classUmeng.newInstance();
-                if (classObj != null) {
-                    Logger.i("获取到方法:"+classObj.toString());
-                }
-                updateMethodUmeng.invoke(classObj, TakePhotoActivity.this);
-            }
+            Logger.i("umeng update exist");
+            Method updateMethodUmeng = classUmeng.getDeclaredMethod("update", Context.class);
+            Object classObj = classUmeng.newInstance();
+            Logger.i("获取到方法:" + classObj.toString());
+            updateMethodUmeng.invoke(classObj, TakePhotoActivity.this);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
@@ -178,15 +173,13 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
             e.printStackTrace();
         }
 
-        try {
+        try {//360
             Class classW360 = Class.forName("com.qihoo.appstore.updatelib.UpdateManager");
-            if (classW360 != null) {
-                Logger.i("360 update exist");
-                Method updateMethodW360 = classW360.getDeclaredMethod("checkUpdate", Context.class);
-                Object classObj = classW360.newInstance();
-                Logger.i("获取到方法:" + classObj.toString());
-                updateMethodW360.invoke(classObj, TakePhotoActivity.this);
-            }
+            Logger.i("360 update exist");
+            Method updateMethodW360 = classW360.getDeclaredMethod("checkUpdate", Context.class);
+            Object classObj = classW360.newInstance();
+            Logger.i("获取到方法:" + classObj.toString());
+            updateMethodW360.invoke(classObj, TakePhotoActivity.this);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
@@ -199,16 +192,24 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
             e.printStackTrace();
         }
 
-
-
-//        UpdateManager.setDebug(true);
-//        UpdateManager.setTestMode(1);
-//        UpdateManager.checkUpdate(TakePhotoActivity.this, new UpdateManager.CheckUpdateListener() {
-//            @Override
-//            public void onResult(boolean b, Bundle bundle) {
-//                Logger.i("is update:" + b + ",action:" + bundle.getString("KEY_ERROR_MSG"));
-//            }
-//        });
+        try {//百度
+            Class classBD = Class.forName("com.baidu.autoupdatesdk.BDAutoUpdateSDK");
+            Logger.i("baidu update exist");
+            Method updateMethodW360 = classBD.getDeclaredMethod("silenceUpdateAction", Context.class);
+            Object classObj = classBD.newInstance();
+            Logger.i("获取到方法:" + classObj.toString());
+            updateMethodW360.invoke(classObj, TakePhotoActivity.this);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
