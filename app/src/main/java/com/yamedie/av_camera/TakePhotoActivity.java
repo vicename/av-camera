@@ -1,6 +1,7 @@
 package com.yamedie.av_camera;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -22,10 +23,14 @@ import com.linj.camera.view.CameraContainer;
 import com.linj.camera.view.CameraView;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 //import com.qihoo.appstore.updatelib.AppInfo;
 //import com.qihoo.appstore.updatelib.UpdateManager;
+import com.umeng.update.UmengUpdateAgent;
 import com.yamedie.common.CommonDefine;
 import com.yamedie.utils.FileUtil;
 import com.yamedie.utils.ImageUtil;
@@ -151,24 +156,49 @@ public class TakePhotoActivity extends BaseActivity implements View.OnClickListe
         //利用反射判断百度 友盟 360的自动更新是否存在,是的话则使用其自动更新
         //此方法需要在build文件中进行配置,即根据不同渠道配置不同的依赖
         try {
-            Class classUmeng = Class.forName("com.umeng.update.util.UmengUpdateAgent");
+            Class classUmeng = Class.forName("com.umeng.update.UmengUpdateAgent");
             if (classUmeng != null) {
                 Logger.i("umeng update exist");
-//                UmengUpdateAgent.update(this);
+                Method updateMethodUmeng = classUmeng.getDeclaredMethod("update", Context.class);
+                Object classObj=classUmeng.newInstance();
+                if (classObj != null) {
+                    Logger.i("获取到方法:"+classObj.toString());
+                }
+                updateMethodUmeng.invoke(classObj, TakePhotoActivity.this);
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
-//        try {
-//            Class classW360 = Class.forName("com.qihoo.appstore.updatelib.UpdateManager");
-//            if (classW360 != null) {
-//                Logger.i("360 update exist");
-//                UpdateManager.checkUpdate(TakePhotoActivity.this);
-//                return;
-//            }
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
+
+        try {
+            Class classW360 = Class.forName("com.qihoo.appstore.updatelib.UpdateManager");
+            if (classW360 != null) {
+                Logger.i("360 update exist");
+                Method updateMethodW360 = classW360.getDeclaredMethod("checkUpdate", Context.class);
+                Object classObj = classW360.newInstance();
+                Logger.i("获取到方法:" + classObj.toString());
+                updateMethodW360.invoke(classObj, TakePhotoActivity.this);
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
 
 
 //        UpdateManager.setDebug(true);

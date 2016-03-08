@@ -124,6 +124,6 @@ android {
         compile project(':umeng_update')
 //        providedCompile project(':w360_ud')
 //        provided project(path:':w360_ud')
-//        suningCompile project(path:':w360_ud')
+        suningCompile project(path:':w360_ud')
     }
 }
